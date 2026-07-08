@@ -297,7 +297,7 @@
           <li>Multi-day monthly view fix - #304</li>
           <li>Composer body config - #216</li>
           <li>Attachment parsing improvements - #307</li>
-          <li>Fixed eplying with correct identity - #325</li>
+          <li>Fixed replying with correct identity - #325</li>
           <li>Added error message for adding account with same e-mail - #318</li>
           <li>Made number of events per day in month view dynamics - #323</li>
           <li>Fixed icon rendering with newer DEs and compositors - #316</li>

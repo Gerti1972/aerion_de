@@ -7,18 +7,18 @@
 - Added custom oauth for imap, cardav, and caldav (designed for and tested with [Stalwart](https://stalw.art))
 - Custom oauth refresh token handling fix
 - Use TOFU cert store for DAV certs
-- Added Google meet link support
+- Added Google meet link support - needs force resync
 - Timezone config fix
 - Multi-day week and day view fix
 - Multi-day monthly view fix - [#304](https://github.com/hkdb/aerion/issues/304)
 - Composer body config - [#216](https://github.com/hkdb/aerion/issues/216)
 - Attachment parsing improvements - [#307](https://github.com/hkdb/aerion/issues/307)
-- Fixed eplying with correct identity [#325](https://github.com/hkdb/aerion/issues/325)
+- Fixed replying with correct identity [#325](https://github.com/hkdb/aerion/issues/325)
 - Added error message for adding account with same e-mail - [#318](https://github.com/hkdb/aerion/issues/318)
 - Made number of events per day in month view dynamics - [#323](https://github.com/hkdb/aerion/issues/323)
 - Fixed icon rendering with newer DEs and compositors - [#316](https://github.com/hkdb/aerion/issues/316)
 - Fixed diff tz time display in calendar
-- Improved calendar about field rendering
+- Improved calendar about field rendering - needs force resync
 - Fixed calendar link handling
 
 
