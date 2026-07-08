@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"sync"
 	"time"
 
@@ -128,6 +129,12 @@ func (b *CalendarBridge) ensureInit() error {
 			return
 		}
 
+		// Seed the configured display tz from persisted state so background sync
+		// interprets tz-less all-day/floating event times in the user's zone.
+		if tz, mErr := store.GetMeta("display_timezone"); mErr == nil && tz != "" {
+			SetConfiguredTimezone(tz)
+		}
+
 		secrets := b.deps.Core.Storage().Secrets(extensionID)
 		auth := b.deps.Core.Auth()
 		queue := NewPendingQueue(store, secrets, auth, b.deps.Core.Events())
@@ -158,14 +165,18 @@ func (b *CalendarBridge) ensureInit() error {
 // the first call; if the server publishes no addresses AND this is
 // empty, the bridge returns ErrCalDAVOrganizerEmailRequired and the
 // frontend prompts the user to enter one before resubmitting.
-func (b *CalendarBridge) Calendar_AddCalDAVSource(name, url, username, password, organizerEmail string) (string, error) {
+// accountID links the source to a custom-OAuth mail account so CalDAV reuses
+// that account's Bearer token instead of username/password. Pass "" for Basic
+// auth (username/password). On the ErrCalDAVOrganizerEmailRequired resubmit the
+// frontend must re-send the same accountID.
+func (b *CalendarBridge) Calendar_AddCalDAVSource(name, url, username, password, organizerEmail, accountID string) (string, error) {
 	if !b.gateEnabled() {
 		return "", errors.New("calendar: extension disabled")
 	}
 	if err := b.ensureInit(); err != nil {
 		return "", err
 	}
-	sourceID, err := b.api.AddCalDAVSource(name, url, username, password, organizerEmail)
+	sourceID, err := b.api.AddCalDAVSource(name, url, username, password, organizerEmail, accountID)
 	if err != nil {
 		return "", err
 	}
@@ -187,6 +198,20 @@ func (b *CalendarBridge) Calendar_SetOrganizerIdentity(sourceID, email string) e
 		return err
 	}
 	return b.api.SetOrganizerIdentity(sourceID, email)
+}
+
+// Calendar_SetDisplayTimezone persists + applies the user's configured calendar
+// display timezone so the sync/parse path anchors tz-less all-day/floating event
+// times to the same zone the UI buckets by. Called from the frontend whenever
+// the display tz resolves/changes and on init.
+func (b *CalendarBridge) Calendar_SetDisplayTimezone(tz string) error {
+	if !b.gateEnabled() {
+		return errors.New("calendar: extension disabled")
+	}
+	if err := b.ensureInit(); err != nil {
+		return err
+	}
+	return b.api.SetDisplayTimezone(tz)
 }
 
 // Calendar_ReprobeCalDAVOrganizerIdentities re-runs the principal
@@ -467,21 +492,36 @@ func (b *CalendarBridge) Calendar_GetEvent(eventID string) (*Event, error) {
 	if err != nil || ev == nil {
 		return ev, err
 	}
-	ev.DescriptionHTML = b.deps.Core.HTML().Sanitize(richBodyOf(ev))
+	// Decode iCal TEXT escapes here, at the render boundary, so bodies that
+	// were persisted raw (CalDAV DESCRIPTION stores "\n" escapes; existing rows
+	// aren't re-parsed on an ETag-unchanged resync) display with real line
+	// breaks. Idempotent for providers that already store plaintext (Graph text
+	// bodies, Google) — no backslash escapes → returned unchanged.
+	ev.Description = unescapeICalText(ev.Description)
+
+	// One About-body engine, two modes. Exchange/Graph put full HTML straight
+	// into the DESCRIPTION column; sanitize + render as HTML. Everything else
+	// is plaintext (CalDAV/Teams .ics, Graph text bodies) — leave it in
+	// ev.Description for the frontend to render via Linkified +
+	// whitespace-pre-wrap, so newlines survive and bare URLs stay clickable
+	// through the hardened Calendar_OpenURL resolver.
+	//
+	// Detect on the column (the reliable full body), NOT a re-parse of
+	// ev.ICSBlob: go-ical truncates long folded values (an 1858-char Exchange
+	// body came back as 264 chars, cut mid-<style>).
+	if bodyIsHTML(ev.Description) {
+		ev.DescriptionHTML = b.deps.Core.HTML().Sanitize(ev.Description)
+	}
 	return ev, nil
 }
 
-// richBodyOf returns the event body to render: X-ALT-DESC (Aerion-authored
-// rich text) when present, else the denormalized DESCRIPTION column — which
-// already holds the full body (Exchange/Graph put HTML straight in there).
-//
-// Crucially we use ev.Description (the column), NOT a re-parse of ev.ICSBlob:
-// go-ical truncates long folded DESCRIPTION values (an 1858-char Exchange body
-// came back as 264 chars, cut mid-<style>, which the sanitizer then stripped to
-// nothing). The column is stored full + unescaped at sync time. Always
-// sanitized + rendered as HTML downstream — same as the mail viewer.
-func richBodyOf(ev *Event) string {
-	return ev.Description
+// htmlBodyRe matches an opening HTML tag from the small set Exchange/Graph
+// emit in rich-text bodies. Plaintext bodies never contain these.
+var htmlBodyRe = regexp.MustCompile(`(?is)<(html|head|body|div|p|br|span|table|ul|ol|li|h[1-6]|a\s|strong|em|b>|i>)`)
+
+// bodyIsHTML reports whether an event body is HTML (vs plaintext).
+func bodyIsHTML(s string) bool {
+	return htmlBodyRe.MatchString(s)
 }
 
 // Calendar_SetCalendarVisible toggles a calendar's visibility in the UI.

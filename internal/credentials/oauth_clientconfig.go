@@ -175,6 +175,25 @@ func (s *Store) UpdateOAuthAccessTokenForClientConfig(accountID, clientConfigID,
 	return nil
 }
 
+// UpdateOAuthTokensForClientConfig updates the access token, expiry, AND refresh
+// token for a (account, client_config) pair after a refresh. The refresh token
+// is persisted only when non-empty: providers that don't rotate omit it on
+// refresh, and overwriting the still-valid stored one with "" would break the
+// next refresh. Used by the auth broker's refreshing transport so a rotated
+// refresh token (Microsoft, custom OIDC) is not lost — mirrors the rotation
+// handling in app/compose.go's core mail refresh.
+func (s *Store) UpdateOAuthTokensForClientConfig(accountID, clientConfigID, accessToken, refreshToken string, expiresAt time.Time) error {
+	if err := s.UpdateOAuthAccessTokenForClientConfig(accountID, clientConfigID, accessToken, expiresAt); err != nil {
+		return err
+	}
+	if refreshToken != "" {
+		if err := s.setOAuthRefreshTokenForClientConfig(accountID, clientConfigID, refreshToken); err != nil {
+			return fmt.Errorf("failed to store rotated refresh token: %w", err)
+		}
+	}
+	return nil
+}
+
 // HasOAuthTokensForClientConfig returns true if the (account, client_config)
 // pair has a token row.
 func (s *Store) HasOAuthTokensForClientConfig(accountID, clientConfigID string) bool {
@@ -184,6 +203,20 @@ func (s *Store) HasOAuthTokensForClientConfig(accountID, clientConfigID string) 
 		accountID, clientConfigID,
 	).Scan(&count)
 	return err == nil && count > 0
+}
+
+// isMailClientConfig reports whether clientConfigID is a core mail slot. Mail
+// tokens are written via the legacy single-config path (SetOAuthTokens →
+// "<accountID>:<kind>" keyring / accounts-table encrypted columns), so the
+// per-(account, client_config) helpers fall back to that legacy storage for
+// these slots. "custom-mail" (generic OIDC accounts) stores tokens the same
+// way, so it belongs here alongside google-mail / microsoft-mail.
+func isMailClientConfig(clientConfigID string) bool {
+	switch clientConfigID {
+	case "google-mail", "microsoft-mail", "custom-mail":
+		return true
+	}
+	return false
 }
 
 // -----------------------------------------------------------------------------
@@ -203,7 +236,7 @@ func (s *Store) setOAuthAccessTokenForClientConfig(accountID, clientConfigID, to
 	}
 	// Mail configs reuse the legacy accounts-table encrypted fallback for
 	// back-compat with tokens written before migration v29.
-	if clientConfigID == "google-mail" || clientConfigID == "microsoft-mail" {
+	if isMailClientConfig(clientConfigID) {
 		return s.setOAuthAccessToken(accountID, token)
 	}
 	// Non-mail configs land in the per-(account, client_config) encrypted
@@ -224,7 +257,7 @@ func (s *Store) getOAuthAccessTokenForClientConfig(accountID, clientConfigID str
 	// Mail configs additionally honor the legacy single-config storage paths
 	// (legacy keyring key OR encrypted DB column) for back-compat with tokens
 	// written before migration v29.
-	if clientConfigID == "google-mail" || clientConfigID == "microsoft-mail" {
+	if isMailClientConfig(clientConfigID) {
 		return s.getOAuthAccessToken(accountID)
 	}
 	return s.getEncryptedTokenColumnForClientConfig(accountID, clientConfigID, "encrypted_access_token")
@@ -241,7 +274,7 @@ func (s *Store) setOAuthRefreshTokenForClientConfig(accountID, clientConfigID, t
 		}
 		s.log.Warn().Err(err).Msg("Failed to store extension refresh token in keyring")
 	}
-	if clientConfigID == "google-mail" || clientConfigID == "microsoft-mail" {
+	if isMailClientConfig(clientConfigID) {
 		return s.setOAuthRefreshToken(accountID, token)
 	}
 	return s.setEncryptedTokenColumnForClientConfig(accountID, clientConfigID, "encrypted_refresh_token", token)
@@ -254,7 +287,7 @@ func (s *Store) getOAuthRefreshTokenForClientConfig(accountID, clientConfigID st
 			return token, nil
 		}
 	}
-	if clientConfigID == "google-mail" || clientConfigID == "microsoft-mail" {
+	if isMailClientConfig(clientConfigID) {
 		return s.getOAuthRefreshToken(accountID)
 	}
 	return s.getEncryptedTokenColumnForClientConfig(accountID, clientConfigID, "encrypted_refresh_token")

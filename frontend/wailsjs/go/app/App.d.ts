@@ -5,9 +5,9 @@ import {account} from '../models';
 import {carddav} from '../models';
 import {backend} from '../models';
 import {v1} from '../models';
+import {app} from '../models';
 import {message} from '../models';
 import {folder} from '../models';
-import {app} from '../models';
 import {contact} from '../models';
 import {context} from '../models';
 import {smtp} from '../models';
@@ -37,7 +37,7 @@ export function Archive(arg1:Array<string>):Promise<void>;
 
 export function BroadcastThemeChange(arg1:string):Promise<void>;
 
-export function Calendar_AddCalDAVSource(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<string>;
+export function Calendar_AddCalDAVSource(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string):Promise<string>;
 
 export function Calendar_AddGoogleSource(arg1:string,arg2:string,arg3:string,arg4:Array<backend.GoogleCalendarSelection>):Promise<string>;
 
@@ -89,6 +89,8 @@ export function Calendar_SetCalendarColor(arg1:string,arg2:string):Promise<void>
 
 export function Calendar_SetCalendarVisible(arg1:string,arg2:boolean):Promise<void>;
 
+export function Calendar_SetDisplayTimezone(arg1:string):Promise<void>;
+
 export function Calendar_SetOrganizerIdentity(arg1:string,arg2:string):Promise<void>;
 
 export function Calendar_SetSyncInterval(arg1:string,arg2:number):Promise<void>;
@@ -122,6 +124,8 @@ export function ClearOAuthCreds(arg1:string):Promise<void>;
 export function CloseWindow():Promise<void>;
 
 export function CompleteContactSourceOAuthSetup(arg1:string,arg2:number):Promise<carddav.Source>;
+
+export function CompleteCustomOAuthAccountSetup(arg1:account.AccountConfig):Promise<account.Account>;
 
 export function CompleteOAuthAccountSetup(arg1:string,arg2:string,arg3:string,arg4:string,arg5:string):Promise<account.Account>;
 
@@ -174,6 +178,10 @@ export function DeleteSMIMECertificate(arg1:string):Promise<void>;
 export function DeleteSenderCert(arg1:string):Promise<void>;
 
 export function DiscoverCardDAVAddressbooks(arg1:string,arg2:string,arg3:string):Promise<Array<carddav.AddressbookInfo>>;
+
+export function DiscoverCardDAVAddressbooksOAuth(arg1:string,arg2:string):Promise<Array<carddav.AddressbookInfo>>;
+
+export function DiscoverOAuthProvider(arg1:string):Promise<app.OIDCDiscoveryResult>;
 
 export function DownloadAttachment(arg1:string,arg2:string):Promise<string>;
 
@@ -238,6 +246,10 @@ export function GetConversation(arg1:string,arg2:string):Promise<message.Convers
 export function GetConversationCount(arg1:string,arg2:string,arg3:string):Promise<number>;
 
 export function GetConversations(arg1:string,arg2:string,arg3:number,arg4:number,arg5:string,arg6:string):Promise<Array<message.Conversation>>;
+
+export function GetCustomOAuthAccounts():Promise<Array<app.LinkedAccountInfo>>;
+
+export function GetDarkComposerBody():Promise<boolean>;
 
 export function GetDarkMailContent():Promise<boolean>;
 
@@ -501,8 +513,6 @@ export function SaveDraft(arg1:string,arg2:smtp.ComposeMessage,arg3:string):Prom
 
 export function SaveEncryptedAttachmentAs(arg1:string,arg2:string):Promise<string>;
 
-export function SaveOAuthTokens(arg1:string,arg2:string,arg3:string,arg4:string,arg5:number):Promise<void>;
-
 export function SavePendingOAuthTokens(arg1:string):Promise<void>;
 
 export function SaveUIState(arg1:appstate.UIState):Promise<void>;
@@ -532,6 +542,8 @@ export function SetComposerFormat(arg1:string):Promise<void>;
 export function SetComposerMode(arg1:string):Promise<void>;
 
 export function SetContactSourceWritable(arg1:string,arg2:boolean):Promise<void>;
+
+export function SetDarkComposerBody(arg1:boolean):Promise<void>;
 
 export function SetDarkMailContent(arg1:boolean):Promise<void>;
 
@@ -592,6 +604,8 @@ export function ShowWindow():Promise<void>;
 export function Star(arg1:Array<string>):Promise<void>;
 
 export function StartContactsOnlyOAuthFlow(arg1:string):Promise<void>;
+
+export function StartCustomOAuthFlow(arg1:string,arg2:string,arg3:string,arg4:Array<string>,arg5:string,arg6:string):Promise<void>;
 
 export function StartOAuthFlow(arg1:string):Promise<void>;
 

@@ -38,8 +38,8 @@ export function BroadcastThemeChange(arg1) {
   return window['go']['app']['App']['BroadcastThemeChange'](arg1);
 }
 
-export function Calendar_AddCalDAVSource(arg1, arg2, arg3, arg4, arg5) {
-  return window['go']['app']['App']['Calendar_AddCalDAVSource'](arg1, arg2, arg3, arg4, arg5);
+export function Calendar_AddCalDAVSource(arg1, arg2, arg3, arg4, arg5, arg6) {
+  return window['go']['app']['App']['Calendar_AddCalDAVSource'](arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
 export function Calendar_AddGoogleSource(arg1, arg2, arg3, arg4) {
@@ -142,6 +142,10 @@ export function Calendar_SetCalendarVisible(arg1, arg2) {
   return window['go']['app']['App']['Calendar_SetCalendarVisible'](arg1, arg2);
 }
 
+export function Calendar_SetDisplayTimezone(arg1) {
+  return window['go']['app']['App']['Calendar_SetDisplayTimezone'](arg1);
+}
+
 export function Calendar_SetOrganizerIdentity(arg1, arg2) {
   return window['go']['app']['App']['Calendar_SetOrganizerIdentity'](arg1, arg2);
 }
@@ -208,6 +212,10 @@ export function CloseWindow() {
 
 export function CompleteContactSourceOAuthSetup(arg1, arg2) {
   return window['go']['app']['App']['CompleteContactSourceOAuthSetup'](arg1, arg2);
+}
+
+export function CompleteCustomOAuthAccountSetup(arg1) {
+  return window['go']['app']['App']['CompleteCustomOAuthAccountSetup'](arg1);
 }
 
 export function CompleteOAuthAccountSetup(arg1, arg2, arg3, arg4, arg5) {
@@ -312,6 +320,14 @@ export function DeleteSenderCert(arg1) {
 
 export function DiscoverCardDAVAddressbooks(arg1, arg2, arg3) {
   return window['go']['app']['App']['DiscoverCardDAVAddressbooks'](arg1, arg2, arg3);
+}
+
+export function DiscoverCardDAVAddressbooksOAuth(arg1, arg2) {
+  return window['go']['app']['App']['DiscoverCardDAVAddressbooksOAuth'](arg1, arg2);
+}
+
+export function DiscoverOAuthProvider(arg1) {
+  return window['go']['app']['App']['DiscoverOAuthProvider'](arg1);
 }
 
 export function DownloadAttachment(arg1, arg2) {
@@ -440,6 +456,14 @@ export function GetConversationCount(arg1, arg2, arg3) {
 
 export function GetConversations(arg1, arg2, arg3, arg4, arg5, arg6) {
   return window['go']['app']['App']['GetConversations'](arg1, arg2, arg3, arg4, arg5, arg6);
+}
+
+export function GetCustomOAuthAccounts() {
+  return window['go']['app']['App']['GetCustomOAuthAccounts']();
+}
+
+export function GetDarkComposerBody() {
+  return window['go']['app']['App']['GetDarkComposerBody']();
 }
 
 export function GetDarkMailContent() {
@@ -966,10 +990,6 @@ export function SaveEncryptedAttachmentAs(arg1, arg2) {
   return window['go']['app']['App']['SaveEncryptedAttachmentAs'](arg1, arg2);
 }
 
-export function SaveOAuthTokens(arg1, arg2, arg3, arg4, arg5) {
-  return window['go']['app']['App']['SaveOAuthTokens'](arg1, arg2, arg3, arg4, arg5);
-}
-
 export function SavePendingOAuthTokens(arg1) {
   return window['go']['app']['App']['SavePendingOAuthTokens'](arg1);
 }
@@ -1028,6 +1048,10 @@ export function SetComposerMode(arg1) {
 
 export function SetContactSourceWritable(arg1, arg2) {
   return window['go']['app']['App']['SetContactSourceWritable'](arg1, arg2);
+}
+
+export function SetDarkComposerBody(arg1) {
+  return window['go']['app']['App']['SetDarkComposerBody'](arg1);
 }
 
 export function SetDarkMailContent(arg1) {
@@ -1148,6 +1172,10 @@ export function Star(arg1) {
 
 export function StartContactsOnlyOAuthFlow(arg1) {
   return window['go']['app']['App']['StartContactsOnlyOAuthFlow'](arg1);
+}
+
+export function StartCustomOAuthFlow(arg1, arg2, arg3, arg4, arg5, arg6) {
+  return window['go']['app']['App']['StartCustomOAuthFlow'](arg1, arg2, arg3, arg4, arg5, arg6);
 }
 
 export function StartOAuthFlow(arg1) {

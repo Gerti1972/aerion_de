@@ -55,9 +55,9 @@ func (t *bearerRefreshTransport) RoundTrip(req *http.Request) (*http.Response, e
 		return nil, fmt.Errorf("auth broker: re-read tokens before refresh: %w", err)
 	}
 
-	provider, err := oauth2.GetProviderForClientConfig(t.clientConfigID)
+	provider, err := t.resolveProvider()
 	if err != nil {
-		return nil, fmt.Errorf("auth broker: resolve provider for %s: %w", t.clientConfigID, err)
+		return nil, err
 	}
 
 	refreshed, err := t.oauthManager.RefreshTokenWithProvider(provider, tokens.RefreshToken)
@@ -66,11 +66,36 @@ func (t *bearerRefreshTransport) RoundTrip(req *http.Request) (*http.Response, e
 	}
 
 	expiresAt := time.Now().Add(time.Duration(refreshed.ExpiresIn) * time.Second)
-	if err := t.credStore.UpdateOAuthAccessTokenForClientConfig(t.accountID, t.clientConfigID, refreshed.AccessToken, expiresAt); err != nil {
-		return nil, fmt.Errorf("auth broker: persist refreshed token: %w", err)
+	// Persist the rotated refresh token too — providers like Microsoft and custom
+	// OIDC return a NEW refresh_token on refresh; dropping it breaks the next one.
+	if err := t.credStore.UpdateOAuthTokensForClientConfig(t.accountID, t.clientConfigID, refreshed.AccessToken, refreshed.RefreshToken, expiresAt); err != nil {
+		return nil, fmt.Errorf("auth broker: persist refreshed tokens: %w", err)
 	}
 
 	return t.do(req, refreshed.AccessToken)
+}
+
+// resolveProvider returns the OAuth2 provider config for refreshing this account's
+// token. Custom ("bring your own app") accounts store their endpoints/creds per account
+// (no static client-config registration), so they resolve from GetCustomOAuthProvider;
+// shipped providers use the static client-config lookup.
+func (t *bearerRefreshTransport) resolveProvider() (oauth2.ProviderConfig, error) {
+	if t.clientConfigID == "custom-mail" {
+		cfg, ok, err := t.credStore.GetCustomOAuthProvider(t.accountID)
+		if err != nil {
+			return oauth2.ProviderConfig{}, fmt.Errorf("auth broker: get custom provider for %s: %w", t.accountID, err)
+		}
+		if !ok {
+			return oauth2.ProviderConfig{}, fmt.Errorf("auth broker: no custom provider configured for account %s", t.accountID)
+		}
+		return oauth2.CustomProviderConfig(cfg.AuthURL, cfg.TokenURL, cfg.UserinfoEndpoint, cfg.Scopes, cfg.ClientID, cfg.ClientSecret), nil
+	}
+
+	provider, err := oauth2.GetProviderForClientConfig(t.clientConfigID)
+	if err != nil {
+		return oauth2.ProviderConfig{}, fmt.Errorf("auth broker: resolve provider for %s: %w", t.clientConfigID, err)
+	}
+	return provider, nil
 }
 
 // do clones the request, sets the bearer header, and dispatches via the base

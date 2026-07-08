@@ -15,14 +15,24 @@ import (
 type Broker struct {
 	credStore    *credentials.Store
 	oauthManager *oauth2.Manager
+	// baseTransport is the TLS base for the bearer clients the broker vends.
+	// The host installs a cert-aware (TOFU) transport so extension DAV traffic
+	// honors the same trusted-certificate store as IMAP/SMTP. Nil falls back to
+	// http.DefaultTransport.
+	baseTransport http.RoundTripper
 }
 
 // NewBroker constructs a Broker bound to the given credential store and
-// OAuth manager. Both are required and must be non-nil.
-func NewBroker(credStore *credentials.Store, oauthManager *oauth2.Manager) *Broker {
+// OAuth manager. credStore and oauthManager are required; baseTransport is the
+// TLS base for vended clients (nil → http.DefaultTransport).
+func NewBroker(credStore *credentials.Store, oauthManager *oauth2.Manager, baseTransport http.RoundTripper) *Broker {
+	if baseTransport == nil {
+		baseTransport = http.DefaultTransport
+	}
 	return &Broker{
-		credStore:    credStore,
-		oauthManager: oauthManager,
+		credStore:     credStore,
+		oauthManager:  oauthManager,
+		baseTransport: baseTransport,
 	}
 }
 
@@ -76,7 +86,7 @@ func (b *Broker) HTTPClient(accountID string, scopes []coreapi.AuthScope) (*http
 
 	return &http.Client{
 		Transport: &bearerRefreshTransport{
-			base:           http.DefaultTransport,
+			base:           b.baseTransport,
 			credStore:      b.credStore,
 			oauthManager:   b.oauthManager,
 			accountID:      accountID,
@@ -113,6 +123,33 @@ func (b *Broker) HTTPClientForExtension(
 	mailTokens, err := b.credStore.GetOAuthTokens(accountID)
 	if err != nil {
 		return nil, fmt.Errorf("auth broker: get account tokens: %w", err)
+	}
+
+	// Custom ("bring your own app") accounts have a single per-account grant —
+	// no core-vs-own scope routing, no per-extension custom slot, and no
+	// incremental consent. Route straight to custom-mail, skipping the manifest
+	// classification + scope gate below.
+	if mailTokens.Provider == "custom" {
+		clientConfigID := resolveClientConfigID("custom", false) // "custom-mail"
+		if _, terr := b.credStore.GetOAuthTokensForClientConfig(accountID, string(clientConfigID)); terr != nil {
+			if terr == credentials.ErrCredentialNotFound {
+				return nil, &coreapi.ErrAdditionalConsentRequired{
+					AccountID:      accountID,
+					ClientConfigID: clientConfigID,
+					MissingScopes:  scopes,
+				}
+			}
+			return nil, fmt.Errorf("auth broker: check tokens: %w", terr)
+		}
+		return &http.Client{
+			Transport: &bearerRefreshTransport{
+				base:           b.baseTransport,
+				credStore:      b.credStore,
+				oauthManager:   b.oauthManager,
+				accountID:      accountID,
+				clientConfigID: string(clientConfigID),
+			},
+		}, nil
 	}
 
 	// Classify each requested scope: does it use Aerion core's mail OAuth
@@ -178,7 +215,7 @@ func (b *Broker) HTTPClientForExtension(
 
 	return &http.Client{
 		Transport: &bearerRefreshTransport{
-			base:           http.DefaultTransport,
+			base:           b.baseTransport,
 			credStore:      b.credStore,
 			oauthManager:   b.oauthManager,
 			accountID:      accountID,

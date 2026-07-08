@@ -12,6 +12,8 @@ import (
 
 	"github.com/emersion/go-webdav"
 	extcaldav "github.com/emersion/go-webdav/caldav"
+
+	"github.com/hkdb/aerion/internal/kit/davutil"
 )
 
 // DiscoveredCalendar is the calendar-shaped result of CalDAV discovery,
@@ -48,6 +50,25 @@ type DiscoveredCalendar struct {
 // hit the affected XML elements — 1C will factor / inline the fix when
 // ETag-based sync needs it.
 func DiscoverCalendars(ctx context.Context, baseURL, username, password string) (string, []DiscoveredCalendar, error) {
+	httpClient := webdav.HTTPClientWithBasicAuth(
+		newCalDAVHTTPClient(30*time.Second),
+		username, password,
+	)
+	return discoverCalendars(ctx, baseURL, username, httpClient)
+}
+
+// DiscoverCalendarsWithHTTPClient is the Bearer (account-linked) discovery entry
+// point: it uses the caller-supplied auth-carrying client instead of building a
+// Basic one. The username-templated fallback paths are skipped (a unified OAuth
+// server like Stalwart resolves via direct URL / .well-known / principal).
+func DiscoverCalendarsWithHTTPClient(ctx context.Context, baseURL string, httpClient webdav.HTTPClient) (string, []DiscoveredCalendar, error) {
+	return discoverCalendars(ctx, baseURL, "", httpClient)
+}
+
+// discoverCalendars is the shared discovery core. Auth is whatever httpClient
+// injects (Basic or Bearer); username only templates the Nextcloud/principal
+// fallback paths and may be "" for OAuth.
+func discoverCalendars(ctx context.Context, baseURL, username string, httpClient webdav.HTTPClient) (string, []DiscoveredCalendar, error) {
 	parsedURL, err := url.Parse(baseURL)
 	if err != nil {
 		return "", nil, fmt.Errorf("invalid URL: %w", err)
@@ -55,11 +76,6 @@ func DiscoverCalendars(ctx context.Context, baseURL, username, password string) 
 	if parsedURL.Scheme == "" {
 		parsedURL.Scheme = "https"
 	}
-
-	httpClient := webdav.HTTPClientWithBasicAuth(
-		newCalDAVHTTPClient(30*time.Second),
-		username, password,
-	)
 
 	var lastErr error
 
@@ -403,7 +419,11 @@ func resolveCalDAVURL(baseURL, href string) string {
 // at that point (likely as a shared internal/davutil package the host
 // exposes, since calendar can't import internal/carddav).
 func newCalDAVHTTPClient(timeout time.Duration) *http.Client {
+	// Route through davutil so the client uses the host-installed cert-aware
+	// (TOFU) base transport — same trusted-cert store as IMAP/SMTP — instead of
+	// the implicit http.DefaultTransport.
 	return &http.Client{
-		Timeout: timeout,
+		Timeout:   timeout,
+		Transport: davutil.NewXMLFixTransport(nil),
 	}
 }

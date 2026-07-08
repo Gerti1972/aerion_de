@@ -535,6 +535,13 @@ func (c *ComposerApp) GetThemeMode() (string, error) {
 	return c.settingsStore.GetThemeMode()
 }
 
+// GetDarkComposerBody returns whether the composer message body should use a
+// dark background while in dark mode (the detached composer reads it so it opens
+// with the surface matching the user's choice).
+func (c *ComposerApp) GetDarkComposerBody() (bool, error) {
+	return c.settingsStore.GetDarkComposerBody()
+}
+
 // GetSystemTheme returns the current system theme preference detected via
 // the XDG Settings Portal on Linux. Returns "light", "dark", or "" if not available.
 func (c *ComposerApp) GetSystemTheme() string {
@@ -870,18 +877,10 @@ func (c *ComposerApp) draftToComposeMessage(d *draft.Draft) *smtp.ComposeMessage
 // buildReplyMessage builds a compose message for reply/forward.
 // This is a simplified version of the logic in app.go PrepareReply.
 func (c *ComposerApp) buildReplyMessage(msg *message.Message, mode string) *smtp.ComposeMessage {
-	// Get default identity
+	// Prefer the identity the original message was addressed to (#325), then the
+	// default identity, then the first.
 	identities, _ := c.accountStore.GetIdentities(c.config.AccountID)
-	var fromIdentity *account.Identity
-	for _, id := range identities {
-		if id.IsDefault {
-			fromIdentity = id
-			break
-		}
-	}
-	if fromIdentity == nil && len(identities) > 0 {
-		fromIdentity = identities[0]
-	}
+	fromIdentity := selectReplyFromIdentity(identities, msg)
 
 	from := smtp.Address{}
 	if fromIdentity != nil {
