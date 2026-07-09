@@ -3,6 +3,7 @@ package settings
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -37,6 +38,9 @@ const (
 	KeyShowViewerCircles         = "show_viewer_circles"
 	KeyLastSeenVersion           = "last_seen_version"      // for "What's new in this version" launch dialog
 	KeyOAuthWarningDisabled      = "oauth_warning_disabled" // user toggled "Don't show again" on the missing-OAuth-creds launch warning
+	KeySpellcheckEnabled         = "spellcheck_enabled"      // composer spellcheck master toggle (defaults on)
+	KeySpellcheckLanguages       = "spellcheck_languages"    // JSON array of enabled dictionary codes, e.g. ["en","de"]
+	KeySpellcheckCustomWords     = "spellcheck_custom_words" // JSON array of user-added dictionary words
 )
 
 // Extension enable/disable keys. Format: extension_<name>_enabled.
@@ -512,6 +516,88 @@ func (s *Store) SetAutostart(enabled bool) error {
 		value = "true"
 	}
 	return s.Set(KeyAutostart, value)
+}
+
+// GetSpellcheckEnabled returns whether composer spellcheck is on. Defaults to
+// true (only an explicit "false" disables it) so it's on out of the box.
+func (s *Store) GetSpellcheckEnabled() (bool, error) {
+	value, err := s.Get(KeySpellcheckEnabled)
+	if err != nil {
+		return true, err
+	}
+	return value != "false", nil
+}
+
+// SetSpellcheckEnabled sets the composer spellcheck master toggle
+func (s *Store) SetSpellcheckEnabled(enabled bool) error {
+	value := "false"
+	if enabled {
+		value = "true"
+	}
+	return s.Set(KeySpellcheckEnabled, value)
+}
+
+// GetSpellcheckLanguages returns the enabled dictionary codes. Empty (unset)
+// lets the frontend fall back to the UI language + English.
+func (s *Store) GetSpellcheckLanguages() ([]string, error) {
+	value, err := s.Get(KeySpellcheckLanguages)
+	if err != nil {
+		return nil, err
+	}
+	if value == "" {
+		return []string{}, nil
+	}
+	var langs []string
+	if err := json.Unmarshal([]byte(value), &langs); err != nil {
+		return []string{}, nil // tolerate a corrupt value rather than fail settings load
+	}
+	return langs, nil
+}
+
+// SetSpellcheckLanguages stores the enabled dictionary codes as a JSON array
+func (s *Store) SetSpellcheckLanguages(langs []string) error {
+	if langs == nil {
+		langs = []string{}
+	}
+	data, err := json.Marshal(langs)
+	if err != nil {
+		return err
+	}
+	return s.Set(KeySpellcheckLanguages, string(data))
+}
+
+// GetSpellcheckCustomWords returns the user-added dictionary words
+func (s *Store) GetSpellcheckCustomWords() ([]string, error) {
+	value, err := s.Get(KeySpellcheckCustomWords)
+	if err != nil {
+		return nil, err
+	}
+	if value == "" {
+		return []string{}, nil
+	}
+	var words []string
+	if err := json.Unmarshal([]byte(value), &words); err != nil {
+		return []string{}, nil
+	}
+	return words, nil
+}
+
+// AddSpellcheckCustomWord appends a word to the user dictionary (no-op if already present)
+func (s *Store) AddSpellcheckCustomWord(word string) error {
+	words, err := s.GetSpellcheckCustomWords()
+	if err != nil {
+		return err
+	}
+	for _, w := range words {
+		if w == word {
+			return nil
+		}
+	}
+	data, err := json.Marshal(append(words, word))
+	if err != nil {
+		return err
+	}
+	return s.Set(KeySpellcheckCustomWords, string(data))
 }
 
 // GetLanguage returns the saved language preference (locale code)

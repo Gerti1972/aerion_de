@@ -1,4 +1,14 @@
 {
+  "spellcheck": {
+    "title": "Spellcheck",
+    "enable": "Check spelling",
+    "enableHelp": "Underline misspelled words while composing.",
+    "languages": "Dictionaries",
+    "languagesHelp": "A word is accepted if it's valid in any enabled language.",
+    "addToDictionary": "Add to dictionary",
+    "ignore": "Ignore",
+    "noSuggestions": "No suggestions"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",

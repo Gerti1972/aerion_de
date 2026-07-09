@@ -288,7 +288,7 @@
     <release version="0.3.2" date="2026-07-22">
       <description>
         <ul>
-          <li></li>
+          <li>Added Spellcheck - #277 - (Unfortunately increases the binary siz)</li>
         </ul>
       </description>
     </release>

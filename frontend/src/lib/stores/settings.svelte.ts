@@ -2,7 +2,7 @@
 // Provides reactive state for application settings
 
 // @ts-ignore - wailsjs path
-import { GetMessageListDensity, GetMessageListSortOrder, GetThemeMode, GetShowTitleBar, GetRunBackground, GetStartHidden, GetAutostart, GetLanguage, GetComposerMode, GetMailtoMode, GetComposerFormat, GetNativeTitleBar, GetAlwaysLoadImages, GetDarkMailContent, GetDarkComposerBody, GetAccentBarUnread, GetShowMessageListCircles, GetShowViewerCircles } from '../../../wailsjs/go/app/App'
+import { GetMessageListDensity, GetMessageListSortOrder, GetThemeMode, GetShowTitleBar, GetRunBackground, GetStartHidden, GetAutostart, GetLanguage, GetComposerMode, GetMailtoMode, GetComposerFormat, GetNativeTitleBar, GetAlwaysLoadImages, GetDarkMailContent, GetDarkComposerBody, GetAccentBarUnread, GetShowMessageListCircles, GetShowViewerCircles, GetSpellcheckEnabled, GetSpellcheckLanguages, GetSpellcheckCustomWords } from '../../../wailsjs/go/app/App'
 import { setLocale as setI18nLocale } from '$lib/i18n'
 import { loadDateFnsLocale, getDateFnsLocale } from '$lib/i18n/dateFnsLocale'
 import type { Locale } from 'date-fns'
@@ -30,6 +30,9 @@ let showTitleBar = $state<boolean>(true)
 let runBackground = $state<boolean>(false)
 let startHidden = $state<boolean>(false)
 let autostart = $state<boolean>(false)
+let spellcheckEnabled = $state<boolean>(true)
+let spellcheckLanguages = $state<string[]>([])
+let spellcheckCustomWords = $state<string[]>([])
 let language = $state<string>('')
 let composerMode = $state<ComposerMode>('inline')
 let mailtoMode = $state<ComposerMode>('inline')
@@ -69,6 +72,18 @@ export function getStartHidden(): boolean {
 
 export function getAutostart(): boolean {
   return autostart
+}
+
+export function getSpellcheckEnabled(): boolean {
+  return spellcheckEnabled
+}
+
+export function getSpellcheckLanguages(): string[] {
+  return spellcheckLanguages
+}
+
+export function getSpellcheckCustomWords(): string[] {
+  return spellcheckCustomWords
 }
 
 export function getLanguage(): string {
@@ -148,6 +163,18 @@ export function setAutostart(v: boolean) {
   autostart = v
 }
 
+export function setSpellcheckEnabled(v: boolean) {
+  spellcheckEnabled = v
+}
+
+export function setSpellcheckLanguages(v: string[]) {
+  spellcheckLanguages = v
+}
+
+export function setSpellcheckCustomWords(v: string[]) {
+  spellcheckCustomWords = v
+}
+
 export function setLanguage(lang: string) {
   language = lang
   if (lang) {
@@ -199,7 +226,7 @@ export function setShowViewerCircles(v: boolean) {
 // Load settings from backend (call on app startup)
 export async function loadSettings(): Promise<ThemeMode> {
   try {
-    const [density, sortOrder, theme, titleBar, runBg, startHid, autoSt, lang, compMode, mailMode, compFormat, nativeTB, alwaysImages, darkMail, darkComposer, accentBar, listCircles, viewerCircles] = await Promise.all([
+    const [density, sortOrder, theme, titleBar, runBg, startHid, autoSt, lang, compMode, mailMode, compFormat, nativeTB, alwaysImages, darkMail, darkComposer, accentBar, listCircles, viewerCircles, scEnabled, scLangs, scWords] = await Promise.all([
       GetMessageListDensity(),
       GetMessageListSortOrder(),
       GetThemeMode(),
@@ -218,6 +245,9 @@ export async function loadSettings(): Promise<ThemeMode> {
       GetAccentBarUnread(),
       GetShowMessageListCircles(),
       GetShowViewerCircles(),
+      GetSpellcheckEnabled(),
+      GetSpellcheckLanguages(),
+      GetSpellcheckCustomWords(),
     ])
     messageListDensity = (density as MessageListDensity) || 'standard'
     messageListSortOrder = (sortOrder as MessageListSortOrder) || 'newest'
@@ -236,6 +266,9 @@ export async function loadSettings(): Promise<ThemeMode> {
     accentBarUnread = accentBar ?? false
     showMessageListCircles = listCircles ?? true
     showViewerCircles = viewerCircles ?? true
+    spellcheckEnabled = scEnabled ?? true
+    spellcheckLanguages = scLangs ?? []
+    spellcheckCustomWords = scWords ?? []
     // Apply saved language (if set, overrides system detection from initI18n)
     if (lang) {
       language = lang

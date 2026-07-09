@@ -226,6 +226,37 @@ func (a *App) SetAutostart(enabled bool) error {
 	return a.autostartMgr.Disable()
 }
 
+// GetSpellcheckEnabled returns whether composer spellcheck is on (defaults on)
+func (a *App) GetSpellcheckEnabled() (bool, error) {
+	return a.settingsStore.GetSpellcheckEnabled()
+}
+
+// SetSpellcheckEnabled sets the composer spellcheck master toggle
+func (a *App) SetSpellcheckEnabled(enabled bool) error {
+	return a.settingsStore.SetSpellcheckEnabled(enabled)
+}
+
+// GetSpellcheckLanguages returns the enabled dictionary codes (empty = frontend
+// falls back to the UI language + English)
+func (a *App) GetSpellcheckLanguages() ([]string, error) {
+	return a.settingsStore.GetSpellcheckLanguages()
+}
+
+// SetSpellcheckLanguages sets the enabled dictionary codes
+func (a *App) SetSpellcheckLanguages(langs []string) error {
+	return a.settingsStore.SetSpellcheckLanguages(langs)
+}
+
+// GetSpellcheckCustomWords returns the user-added dictionary words
+func (a *App) GetSpellcheckCustomWords() ([]string, error) {
+	return a.settingsStore.GetSpellcheckCustomWords()
+}
+
+// AddSpellcheckCustomWord appends a word to the user dictionary
+func (a *App) AddSpellcheckCustomWord(word string) error {
+	return a.settingsStore.AddSpellcheckCustomWord(word)
+}
+
 // GetLanguage returns the saved language preference (locale code)
 // Returns empty string if not set (frontend uses system locale detection)
 func (a *App) GetLanguage() (string, error) {

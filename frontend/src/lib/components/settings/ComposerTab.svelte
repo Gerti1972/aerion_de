@@ -2,17 +2,24 @@
   import Icon from '@iconify/svelte'
   import * as Select from '$lib/components/ui/select'
   import { Label } from '$lib/components/ui/label'
+  import Switch from '$lib/components/ui/switch/Switch.svelte'
   import { _ } from '$lib/i18n'
+  import { supportedLocales } from '$lib/i18n'
+  import { SPELLCHECK_DICTS } from '$lib/spellcheck/locales'
 
   interface Props {
     composerMode: string
     mailtoMode: string
     composerFormat: string
     readReceiptResponsePolicy: string
+    spellcheckEnabled: boolean
+    spellcheckLanguages: string[]
     onComposerModeChange: (value: string) => void
     onMailtoModeChange: (value: string) => void
     onFormatChange: (value: string) => void
     onPolicyChange: (value: string) => void
+    onSpellcheckEnabledChange: (value: boolean) => void
+    onSpellcheckLanguagesChange: (value: string[]) => void
   }
 
   let {
@@ -20,11 +27,21 @@
     mailtoMode = $bindable(),
     composerFormat = $bindable(),
     readReceiptResponsePolicy = $bindable(),
+    spellcheckEnabled = $bindable(),
+    spellcheckLanguages = $bindable(),
     onComposerModeChange,
     onMailtoModeChange,
     onFormatChange,
     onPolicyChange,
+    onSpellcheckEnabledChange,
+    onSpellcheckLanguagesChange,
   }: Props = $props()
+
+  // Dictionaries Aerion ships, with their native display names.
+  const dictLanguages = SPELLCHECK_DICTS.map((code) => ({
+    code,
+    name: supportedLocales.find((l) => l.code === code)?.name ?? code,
+  }))
 
   const modeOptions = $derived([
     { value: 'inline', label: $_('settings.composerModeInline') },
@@ -76,6 +93,19 @@
     if (!value) return
     readReceiptResponsePolicy = value
     onPolicyChange?.(value)
+  }
+
+  function handleSpellcheckEnabledChange(value: boolean) {
+    spellcheckEnabled = value
+    onSpellcheckEnabledChange?.(value)
+  }
+
+  function handleLangToggle(code: string, on: boolean) {
+    const next = on
+      ? [...spellcheckLanguages, code]
+      : spellcheckLanguages.filter((c) => c !== code)
+    spellcheckLanguages = next
+    onSpellcheckLanguagesChange?.(next)
   }
 </script>
 
@@ -164,6 +194,42 @@
       <p class="text-xs text-muted-foreground">
         {$_('settingsGeneral.readReceiptPolicyHelp')}
       </p>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="border-t border-border"></div>
+
+  <!-- Spellcheck Section -->
+  <div class="space-y-4">
+    <h3 class="text-sm font-medium flex items-center gap-2">
+      <Icon icon="mdi:spellcheck" class="w-4 h-4" />
+      {$_('spellcheck.title')}
+    </h3>
+
+    <div class="flex items-center justify-between">
+      <div>
+        <Label for="spellcheck-enabled">{$_('spellcheck.enable')}</Label>
+        <p class="text-xs text-muted-foreground">{$_('spellcheck.enableHelp')}</p>
+      </div>
+      <Switch id="spellcheck-enabled" checked={spellcheckEnabled} onCheckedChange={handleSpellcheckEnabledChange} />
+    </div>
+
+    <div class="space-y-2 {spellcheckEnabled ? '' : 'opacity-50 pointer-events-none'}">
+      <Label>{$_('spellcheck.languages')}</Label>
+      <div class="space-y-1 max-h-48 overflow-y-auto rounded-md border border-border p-2">
+        {#each dictLanguages as lang (lang.code)}
+          <div class="flex items-center justify-between px-1 py-1">
+            <span class="text-sm">{lang.name}</span>
+            <Switch
+              id={`spellcheck-lang-${lang.code}`}
+              checked={spellcheckLanguages.includes(lang.code)}
+              onCheckedChange={(v) => handleLangToggle(lang.code, v)}
+            />
+          </div>
+        {/each}
+      </div>
+      <p class="text-xs text-muted-foreground">{$_('spellcheck.languagesHelp')}</p>
     </div>
   </div>
 </div>

@@ -4,7 +4,7 @@
 **v0.3.2 - 07-22-2026**
 ---
 
-
+- Added Spellcheck - [#277](https://github.com/hkdb/aerion/issues/100#issuecomment-4248594756) - (Unfortunately increases the binary size)
 
 
 **v0.3.1 - 07-08-2026**

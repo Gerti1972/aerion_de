@@ -33,6 +33,8 @@ export function AddMicrosoftSharedMailbox(arg1:string,arg2:string,arg3:string):P
 
 export function AddPGPKeyServer(arg1:string):Promise<void>;
 
+export function AddSpellcheckCustomWord(arg1:string):Promise<void>;
+
 export function Archive(arg1:Array<string>):Promise<void>;
 
 export function BroadcastThemeChange(arg1:string):Promise<void>;
@@ -345,6 +347,12 @@ export function GetSourceAddressbooks(arg1:string):Promise<Array<carddav.Address
 
 export function GetSpecialFolder(arg1:string,arg2:folder.Type):Promise<folder.Folder>;
 
+export function GetSpellcheckCustomWords():Promise<Array<string>>;
+
+export function GetSpellcheckEnabled():Promise<boolean>;
+
+export function GetSpellcheckLanguages():Promise<Array<string>>;
+
 export function GetStartHidden():Promise<boolean>;
 
 export function GetStartHiddenActive():Promise<boolean>;
@@ -592,6 +600,10 @@ export function SetShowMessageListCircles(arg1:boolean):Promise<void>;
 export function SetShowTitleBar(arg1:boolean):Promise<void>;
 
 export function SetShowViewerCircles(arg1:boolean):Promise<void>;
+
+export function SetSpellcheckEnabled(arg1:boolean):Promise<void>;
+
+export function SetSpellcheckLanguages(arg1:Array<string>):Promise<void>;
 
 export function SetStartHidden(arg1:boolean):Promise<void>;
 

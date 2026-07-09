@@ -30,6 +30,10 @@ export function AddPGPKeyServer(arg1) {
   return window['go']['app']['App']['AddPGPKeyServer'](arg1);
 }
 
+export function AddSpellcheckCustomWord(arg1) {
+  return window['go']['app']['App']['AddSpellcheckCustomWord'](arg1);
+}
+
 export function Archive(arg1) {
   return window['go']['app']['App']['Archive'](arg1);
 }
@@ -654,6 +658,18 @@ export function GetSpecialFolder(arg1, arg2) {
   return window['go']['app']['App']['GetSpecialFolder'](arg1, arg2);
 }
 
+export function GetSpellcheckCustomWords() {
+  return window['go']['app']['App']['GetSpellcheckCustomWords']();
+}
+
+export function GetSpellcheckEnabled() {
+  return window['go']['app']['App']['GetSpellcheckEnabled']();
+}
+
+export function GetSpellcheckLanguages() {
+  return window['go']['app']['App']['GetSpellcheckLanguages']();
+}
+
 export function GetStartHidden() {
   return window['go']['app']['App']['GetStartHidden']();
 }
@@ -1148,6 +1164,14 @@ export function SetShowTitleBar(arg1) {
 
 export function SetShowViewerCircles(arg1) {
   return window['go']['app']['App']['SetShowViewerCircles'](arg1);
+}
+
+export function SetSpellcheckEnabled(arg1) {
+  return window['go']['app']['App']['SetSpellcheckEnabled'](arg1);
+}
+
+export function SetSpellcheckLanguages(arg1) {
+  return window['go']['app']['App']['SetSpellcheckLanguages'](arg1);
 }
 
 export function SetStartHidden(arg1) {
