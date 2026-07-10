@@ -5,6 +5,7 @@
 ---
 
 - Added Spellcheck - [#277](https://github.com/hkdb/aerion/issues/100#issuecomment-4248594756) - (Unfortunately increases the binary size)
+- Improved unread count and IDLE flag sync - [#327](https://github.com/hkdb/aerion/issues/327)
 
 
 **v0.3.1 - 07-08-2026**
