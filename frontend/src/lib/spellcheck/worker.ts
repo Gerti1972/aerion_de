@@ -142,5 +142,10 @@ self.onmessage = async (e: MessageEvent) => {
       for (const spell of spells.values()) spell.add(msg.word)
       return
     }
+    case 'removeWord': {
+      customWords.delete(msg.word)
+      for (const spell of spells.values()) spell.remove(msg.word)
+      return
+    }
   }
 }

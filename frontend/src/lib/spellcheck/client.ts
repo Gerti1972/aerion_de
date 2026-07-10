@@ -102,6 +102,10 @@ class SpellcheckClient {
     this.worker?.postMessage({ type: 'addWord', word })
   }
 
+  removeWord(word: string): void {
+    this.worker?.postMessage({ type: 'removeWord', word })
+  }
+
   destroy(): void {
     this.worker?.terminate()
     this.worker = null

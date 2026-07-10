@@ -257,6 +257,11 @@ func (a *App) AddSpellcheckCustomWord(word string) error {
 	return a.settingsStore.AddSpellcheckCustomWord(word)
 }
 
+// RemoveSpellcheckCustomWord removes a word from the user dictionary
+func (a *App) RemoveSpellcheckCustomWord(word string) error {
+	return a.settingsStore.RemoveSpellcheckCustomWord(word)
+}
+
 // GetLanguage returns the saved language preference (locale code)
 // Returns empty string if not set (frontend uses system locale detection)
 func (a *App) GetLanguage() (string, error) {

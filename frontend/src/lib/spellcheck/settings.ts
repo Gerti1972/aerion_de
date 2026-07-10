@@ -5,7 +5,7 @@
 import { get } from 'svelte/store'
 import { locale } from 'svelte-i18n'
 import { getSpellcheckEnabled, getSpellcheckLanguages, getSpellcheckCustomWords, setSpellcheckCustomWords } from '$lib/stores/settings.svelte'
-import { AddSpellcheckCustomWord } from '$wailsjs/go/app/App.js'
+import { AddSpellcheckCustomWord, RemoveSpellcheckCustomWord } from '$wailsjs/go/app/App.js'
 import { appLocaleToDict } from './locales'
 import { spellcheck } from './client'
 
@@ -36,9 +36,12 @@ export function addCustomWord(word: string): void {
   AddSpellcheckCustomWord(word).catch(() => {})
 }
 
-// "Ignore": accept the word for this session only (not persisted).
-export function ignoreWord(word: string): void {
-  spellcheck.addWord(word)
+// Remove a word from the user dictionary: drop it from the store + backend and
+// tell the worker to flag it again.
+export function removeCustomWord(word: string): void {
+  setSpellcheckCustomWords(getSpellcheckCustomWords().filter((w) => w !== word))
+  spellcheck.removeWord(word)
+  RemoveSpellcheckCustomWord(word).catch(() => {})
 }
 
 // Live-apply settings changes only when a composer worker is already running

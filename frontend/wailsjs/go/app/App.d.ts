@@ -507,6 +507,8 @@ export function RemoveImageAllowlist(arg1:number):Promise<void>;
 
 export function RemovePGPKeyServer(arg1:number):Promise<void>;
 
+export function RemoveSpellcheckCustomWord(arg1:string):Promise<void>;
+
 export function RemoveTrustedCertificate(arg1:string):Promise<void>;
 
 export function ReorderAccounts(arg1:Array<string>):Promise<void>;

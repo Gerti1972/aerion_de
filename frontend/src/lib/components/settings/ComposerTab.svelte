@@ -6,6 +6,9 @@
   import { _ } from '$lib/i18n'
   import { supportedLocales } from '$lib/i18n'
   import { SPELLCHECK_DICTS } from '$lib/spellcheck/locales'
+  import { getSpellcheckCustomWords } from '$lib/stores/settings.svelte'
+  import { removeCustomWord } from '$lib/spellcheck/settings'
+  import SpellWordList from '$lib/spellcheck/SpellWordList.svelte'
 
   interface Props {
     composerMode: string
@@ -42,6 +45,10 @@
     code,
     name: supportedLocales.find((l) => l.code === code)?.name ?? code,
   }))
+
+  // Added-words list — read straight from the store (persists immediately on
+  // add/remove, independent of the dialog's Save flow).
+  const addedWords = $derived(getSpellcheckCustomWords())
 
   const modeOptions = $derived([
     { value: 'inline', label: $_('settings.composerModeInline') },
@@ -231,5 +238,13 @@
       </div>
       <p class="text-xs text-muted-foreground">{$_('spellcheck.languagesHelp')}</p>
     </div>
+
+    <SpellWordList
+      title={$_('spellcheck.addedWords')}
+      words={addedWords}
+      emptyText={$_('spellcheck.noAddedWords')}
+      removeLabel={$_('spellcheck.removeWord')}
+      onRemove={removeCustomWord}
+    />
   </div>
 </div>

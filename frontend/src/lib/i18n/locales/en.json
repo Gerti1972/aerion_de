@@ -7,7 +7,10 @@
     "languagesHelp": "A word is accepted if it's valid in any enabled language.",
     "addToDictionary": "Add to dictionary",
     "ignore": "Ignore",
-    "noSuggestions": "No suggestions"
+    "noSuggestions": "No suggestions",
+    "addedWords": "Added words",
+    "noAddedWords": "No added words yet.",
+    "removeWord": "Remove word"
   },
   "common": {
     "save": "Save",

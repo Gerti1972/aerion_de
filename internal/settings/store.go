@@ -36,8 +36,8 @@ const (
 	KeyAccentBarUnread           = "accent_bar_unread"
 	KeyShowMessageListCircles    = "show_message_list_circles"
 	KeyShowViewerCircles         = "show_viewer_circles"
-	KeyLastSeenVersion           = "last_seen_version"      // for "What's new in this version" launch dialog
-	KeyOAuthWarningDisabled      = "oauth_warning_disabled" // user toggled "Don't show again" on the missing-OAuth-creds launch warning
+	KeyLastSeenVersion           = "last_seen_version"       // for "What's new in this version" launch dialog
+	KeyOAuthWarningDisabled      = "oauth_warning_disabled"  // user toggled "Don't show again" on the missing-OAuth-creds launch warning
 	KeySpellcheckEnabled         = "spellcheck_enabled"      // composer spellcheck master toggle (defaults on)
 	KeySpellcheckLanguages       = "spellcheck_languages"    // JSON array of enabled dictionary codes, e.g. ["en","de"]
 	KeySpellcheckCustomWords     = "spellcheck_custom_words" // JSON array of user-added dictionary words
@@ -82,35 +82,35 @@ const DefaultMessageListSortOrder = SortOrderNewest
 
 // Theme mode values
 const (
-	ThemeModeSystem      = "system"
-	ThemeModeLight       = "light"        // Default light purple
-	ThemeModeLightBlue   = "light-blue"   // New
-	ThemeModeLightOrange   = "light-orange"   // New
-	ThemeModeLightBalanced = "light-balanced" // New
-	ThemeModeAdwaitaLight  = "adwaita-light"  // Adwaita Light
-	ThemeModeBreezeLight   = "breeze-light"   // Breeze Light
-	ThemeModeDark          = "dark"           // Default dark purple
-	ThemeModeDarkGray     = "dark-gray"     // New
-	ThemeModeDarkBalanced = "dark-balanced" // New
-	ThemeModeAdwaitaDark  = "adwaita-dark"  // Adwaita Dark
-	ThemeModeBreezeDark   = "breeze-dark"   // Breeze Dark
+	ThemeModeSystem              = "system"
+	ThemeModeLight               = "light"                // Default light purple
+	ThemeModeLightBlue           = "light-blue"           // New
+	ThemeModeLightOrange         = "light-orange"         // New
+	ThemeModeLightBalanced       = "light-balanced"       // New
+	ThemeModeAdwaitaLight        = "adwaita-light"        // Adwaita Light
+	ThemeModeBreezeLight         = "breeze-light"         // Breeze Light
+	ThemeModeDark                = "dark"                 // Default dark purple
+	ThemeModeDarkGray            = "dark-gray"            // New
+	ThemeModeDarkBalanced        = "dark-balanced"        // New
+	ThemeModeAdwaitaDark         = "adwaita-dark"         // Adwaita Dark
+	ThemeModeBreezeDark          = "breeze-dark"          // Breeze Dark
 	ThemeModeCatppuccinLatte     = "catppuccin-latte"     // Catppuccin Latte
 	ThemeModeCatppuccinFrappe    = "catppuccin-frappe"    // Catppuccin Frappé
 	ThemeModeCatppuccinMacchiato = "catppuccin-macchiato" // Catppuccin Macchiato
 	ThemeModeCatppuccinMocha     = "catppuccin-mocha"     // Catppuccin Mocha
-	ThemeModeDracula         = "dracula"          // Dracula
-	ThemeModeGithubLight     = "github-light"     // GitHub Light
-	ThemeModeGithubDark      = "github-dark"      // GitHub Dark
-	ThemeModeGithubSoftDark  = "github-soft-dark" // GitHub Soft Dark
-	ThemeModeTokyoNight      = "tokyo-night"      // Tokyo Night
-	ThemeModeNordLight       = "nord-light"       // Nord Light
-	ThemeModeNordDark        = "nord-dark"        // Nord Dark
-	ThemeModePopLight        = "pop-light"        // Pop! Light
-	ThemeModePopDark         = "pop-dark"         // Pop! Dark
-	ThemeModeYaruLight       = "yaru-light"       // Yaru Light
-	ThemeModeYaruDark        = "yaru-dark"        // Yaru Dark
-	ThemeModeVSCodeLight     = "vs-code-light"    // VS Code Light
-	ThemeModeVSCodeDark      = "vs-code-dark"     // VS Code Dark
+	ThemeModeDracula             = "dracula"              // Dracula
+	ThemeModeGithubLight         = "github-light"         // GitHub Light
+	ThemeModeGithubDark          = "github-dark"          // GitHub Dark
+	ThemeModeGithubSoftDark      = "github-soft-dark"     // GitHub Soft Dark
+	ThemeModeTokyoNight          = "tokyo-night"          // Tokyo Night
+	ThemeModeNordLight           = "nord-light"           // Nord Light
+	ThemeModeNordDark            = "nord-dark"            // Nord Dark
+	ThemeModePopLight            = "pop-light"            // Pop! Light
+	ThemeModePopDark             = "pop-dark"             // Pop! Dark
+	ThemeModeYaruLight           = "yaru-light"           // Yaru Light
+	ThemeModeYaruDark            = "yaru-dark"            // Yaru Dark
+	ThemeModeVSCodeLight         = "vs-code-light"        // VS Code Light
+	ThemeModeVSCodeDark          = "vs-code-dark"         // VS Code Dark
 )
 
 // DefaultThemeMode is the default theme mode
@@ -594,6 +594,25 @@ func (s *Store) AddSpellcheckCustomWord(word string) error {
 		}
 	}
 	data, err := json.Marshal(append(words, word))
+	if err != nil {
+		return err
+	}
+	return s.Set(KeySpellcheckCustomWords, string(data))
+}
+
+// RemoveSpellcheckCustomWord removes a word from the user dictionary (no-op if absent)
+func (s *Store) RemoveSpellcheckCustomWord(word string) error {
+	words, err := s.GetSpellcheckCustomWords()
+	if err != nil {
+		return err
+	}
+	kept := make([]string, 0, len(words))
+	for _, w := range words {
+		if w != word {
+			kept = append(kept, w)
+		}
+	}
+	data, err := json.Marshal(kept)
 	if err != nil {
 		return err
 	}

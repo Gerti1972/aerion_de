@@ -10,9 +10,22 @@ import type { EditorView } from '@tiptap/pm/view'
 import type { Node as PMNode } from '@tiptap/pm/model'
 import { spellcheck } from './client'
 import { spellMenu } from './menu.svelte'
-import { addCustomWord, ignoreWord } from './settings'
+import { addCustomWord } from './settings'
 
 const spellcheckKey = new PluginKey<DecorationSet>('spellcheck')
+
+// "Ignore" is per-composer and NOT persisted: it lives in a set keyed by the
+// editor view, so a new composer (new view) starts with a clean slate. Unlike
+// "Add to dictionary" it never touches the worker dictionary or the backend.
+const ignoredWords = new WeakMap<EditorView, Set<string>>()
+function ignoredFor(view: EditorView): Set<string> {
+  let set = ignoredWords.get(view)
+  if (!set) {
+    set = new Set<string>()
+    ignoredWords.set(view, set)
+  }
+  return set
+}
 
 // A "word" is a run of letters/marks with internal apostrophes. Digits and
 // short tokens are skipped (identifiers, numbers, single letters).
@@ -38,8 +51,9 @@ function collectWords(doc: PMNode): WordHit[] {
 
 function decorate(view: EditorView, bad: Set<string>): void {
   const doc = view.state.doc
+  const ignored = ignoredFor(view)
   const decos = collectWords(doc)
-    .filter((h) => bad.has(h.word))
+    .filter((h) => bad.has(h.word) && !ignored.has(h.word))
     .map((h) => Decoration.inline(h.from, h.to, { class: 'spellcheck-error' }))
   view.dispatch(view.state.tr.setMeta(spellcheckKey, DecorationSet.create(doc, decos)))
 }
@@ -112,7 +126,7 @@ function openSpellMenu(view: EditorView, range: Range, anchor: { x: number; y: n
         runCheck(view)
       },
       onIgnore: () => {
-        ignoreWord(word)
+        ignoredFor(view).add(word)
         restoreCursor(view, returnPos)
         runCheck(view)
       },

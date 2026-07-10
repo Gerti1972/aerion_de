@@ -978,6 +978,10 @@ export function RemovePGPKeyServer(arg1) {
   return window['go']['app']['App']['RemovePGPKeyServer'](arg1);
 }
 
+export function RemoveSpellcheckCustomWord(arg1) {
+  return window['go']['app']['App']['RemoveSpellcheckCustomWord'](arg1);
+}
+
 export function RemoveTrustedCertificate(arg1) {
   return window['go']['app']['App']['RemoveTrustedCertificate'](arg1);
 }
