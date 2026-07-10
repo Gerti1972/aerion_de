@@ -255,6 +255,10 @@ func (ic *IdleConnection) ensureConnected(ctx context.Context) error {
 					})
 				}
 			},
+			// EXPUNGE = a message was removed on the server. The app debounces this
+			// into a lightweight deletion reconcile (see handleIdleExpunge in
+			// app/background.go) — required for RFC-strict servers like Dovecot that
+			// signal deletes with EXPUNGE only and no follow-up EXISTS.
 			Expunge: func(seqNum uint32) {
 				ic.log.Debug().Uint32("seqNum", seqNum).Msg("Message expunged")
 				ic.sendEvent(MailEvent{

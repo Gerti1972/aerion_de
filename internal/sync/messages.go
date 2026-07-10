@@ -25,7 +25,12 @@ import (
 // on the same folder, and proper event emission (sync:progress, folder:synced).
 // Calling SyncMessages directly from app/ risks race conditions when multiple
 // operations trigger syncs on the same folder concurrently.
-func (e *Engine) SyncMessages(ctx context.Context, accountID, folderID string, syncPeriodDays int) error {
+// preferIncremental routes flag reconciliation down the fast CONDSTORE
+// CHANGEDSINCE path (skipping the O(window) full re-fetch). Set true only for the
+// IDLE-triggered inbox sync (new-mail + cross-client deletions), which needs to be
+// light; the scheduled sync passes false so it stays the authoritative full
+// reconciliation. Deletion detection (the UID diff below) is unaffected either way.
+func (e *Engine) SyncMessages(ctx context.Context, accountID, folderID string, syncPeriodDays int, preferIncremental bool) error {
 	// Check context at start
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -255,7 +260,7 @@ func (e *Engine) SyncMessages(ctx context.Context, accountID, folderID string, s
 			prevModSeq,
 			mailbox.HighestModSeq,
 			conn.Client().SupportsCondStore(),
-			false, // scheduled path: full-for-small + periodic sweep (authoritative)
+			preferIncremental,
 		)
 	}
 
