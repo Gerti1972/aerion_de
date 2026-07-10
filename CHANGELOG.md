@@ -4,7 +4,7 @@
 **v0.3.2 - 07-22-2026**
 ---
 
-- Added Spellcheck - [#277](https://github.com/hkdb/aerion/issues/100#issuecomment-4248594756) - (Unfortunately increases the binary size)
+- Added Spellcheck - [#277](https://github.com/hkdb/aerion/issues/227) - (Unfortunately increases the binary size)
 - Improved unread count and IDLE sync - [#327](https://github.com/hkdb/aerion/issues/327)
 - True fix for duplicate e-mail add error - [#318](https://github.com/hkdb/aerion/issues/318)
 
