@@ -34,6 +34,10 @@ export function GetDarkComposerBody() {
   return window['go']['app']['ComposerApp']['GetDarkComposerBody']();
 }
 
+export function GetDefaultAddress(arg1, arg2) {
+  return window['go']['app']['ComposerApp']['GetDefaultAddress'](arg1, arg2);
+}
+
 export function GetDraft() {
   return window['go']['app']['ComposerApp']['GetDraft']();
 }

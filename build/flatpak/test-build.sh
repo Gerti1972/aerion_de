@@ -33,7 +33,13 @@ VERSION="$1"
 
 echo "Installing dependencies..."
 apt-get update
-apt-get install -y flatpak flatpak-builder wget git
+# Normal install first; fall back to exact frozen noble release-pocket
+# versions when -updates/-security carry an unsatisfiable dependency (e.g.
+# the 2026-09-17 bubblewrap pull) — same guard as the release workflow.
+# Versions are noble-specific; refresh alongside the workflow if the base
+# image changes.
+apt-get install -y -o APT::Get::Always-Include-Phased-Updates=true flatpak flatpak-builder wget git \
+  || apt-get install -y flatpak=1.14.6-1 libflatpak0=1.14.6-1 bubblewrap=0.9.0-1build1 flatpak-builder=1.4.2-1build2 wget git
 
 echo ""
 echo "Adding Flathub repository..."

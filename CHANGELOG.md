@@ -1,6 +1,34 @@
 # CHANGELOG
 
 
+**v0.3.4 - 09-18-2026**
+---
+
+- Added default CC
+- Added default BCC - [#341](https://github.com/hkdb/aerion/issues/341)
+- Added default reply-to - [#404](https://github.com/hkdb/aerion/issues/404)
+- Added merge identical messages in thread - [#222](https://github.com/hkdb/aerion/issues/222)
+- Relabeled spellcheck dictionary English to English (US)
+- Added spellcheck dictionary: English (UK) - [#417](https://github.com/hkdb/aerion/issues/417)
+- Added spellcheck dictionary: Dutch
+- Added dot and glow dot optional accents for unread messages
+- Added window size persistence - [#217](https://github.com/hkdb/aerion/issues/217)
+- Added mini calendar for easier navigation - [#368](https://github.com/hkdb/aerion/issues/368)
+- Added Empty Spam button for spam folder - [#239](https://github.com/hkdb/aerion/issues/239)
+- New app icon with full hicolor size set + scalable SVG - [#395](https://github.com/hkdb/aerion/issues/395) (Special thanks to @gianlucamazza) - [#99](https://github.com/hkdb/aerion/issues/99) 
+- Fixed post delete ghost messages on message list
+- Fixed thread sender and preview in message list - [#169](https://github.com/hkdb/aerion/issues/169)
+- Fixed comma display name - [#398](https://github.com/hkdb/aerion/issues/398)
+- Fixed composer draft format detection - [#420](https://github.com/hkdb/aerion/issues/420)
+- Block save all attachments if flatpak - [#384](https://github.com/hkdb/aerion/issues/384)
+- Calendar color render adjustments to alleviate [#406](https://github.com/hkdb/aerion/issues/406)
+- Fixed Microsoft calendar attachments handling - [#370](https://github.com/hkdb/aerion/issues/370)
+- Fixed Contacts pagination - [#278](https://github.com/hkdb/aerion/issues/278)
+- Fixed M365 contacts - sync all folders - [#278](https://github.com/hkdb/aerion/issues/278)
+- Fixed M365 calendar - kill the silent-zero paths - [#278](https://github.com/hkdb/aerion/issues/278)
+- Fixed draft edit logic - [#392](https://github.com/hkdb/aerion/issues/392)
+
+
 **v0.3.3 - 08-06-2026**
 ---
 

@@ -65,6 +65,7 @@
     "noMessages": "Brak wiadomości w tym folderze",
     "selectFolder": "Wybierz folder aby zobaczyć wiadomości",
     "emptyTrash": "Opróżnij kosz",
+    "emptySpam": "Opróżnij spam",
     "ftsBuilding": "Budowanie indeksu wyszukiwania... ({percentage}%)",
     "syncFolder": "Synchronizuj folder",
     "forceResync": "Wymuś ponowną synchronizację",
@@ -177,6 +178,7 @@
     "to": "Do",
     "cc": "DW",
     "bcc": "UDW",
+    "replyTo": "Odpowiedz do",
     "subject": "Temat",
     "from": "Od",
     "send": "Wyślij",
@@ -273,6 +275,7 @@
     "deletedFromFolder": "Usunięto z folderu",
     "permanentlyDeleted": "Permanentnie usunięto",
     "trashEmptied": "Kosz opróżniony",
+    "spamEmptied": "Spam opróżniony",
     "markedAsRead": "Oznaczono jako przeczytane",
     "markedAsUnread": "Oznaczono jako nieprzeczytane",
     "markedAsSpam": "Oznaczono jako spam",
@@ -295,6 +298,7 @@
     "failedToArchive": "Nie udało się zarchiwizować.",
     "failedToDelete": "Nie udało się usunąć.",
     "failedToEmptyTrash": "Nie udało się opróżnić kosza.",
+    "failedToEmptySpam": "Nie udało się opróżnić spamu.",
     "failedToMarkAsRead": "Nie udało się oznaczyć jako przeczytane.",
     "failedToMarkAsUnread": "Nie udało się oznaczyć jako nieprzeczytane.",
     "failedToMarkAsSpam": "Nie udało się oznaczyć jako spam.",
@@ -365,7 +369,13 @@
     "composerFormat": "Domyślny format wiadomości",
     "composerFormatRich": "Tekst sformatowany",
     "composerFormatPlain": "Zwykły tekst",
-    "composerFormatDescription": "Nowe wiadomości będą domyślnie używać tego formatu. Możesz zmienić go dla każdej wiadomości."
+    "composerFormatDescription": "Nowe wiadomości będą domyślnie używać tego formatu. Możesz zmienić go dla każdej wiadomości.",
+    "defaultCc": "Domyślne DW",
+    "defaultCcHelp": "Automatycznie dodawane do pola DW podczas tworzenia wiadomości z włączonego konta.",
+    "defaultBcc": "Domyślne UDW",
+    "defaultBccHelp": "Automatycznie dodawane do pola UDW podczas tworzenia wiadomości z włączonego konta.",
+    "defaultReplyTo": "Domyślny adres odpowiedzi",
+    "defaultReplyToHelp": "Ustawia adres odpowiedzi dla wiadomości tworzonych z włączonego konta."
   },
   "settingsGeneral": {
     "display": "Wyświetlanie",
@@ -389,8 +399,12 @@
     "showViewerCirclesHelp": "Pokaż kolorowe kółka z inicjałami nadawcy w przeglądzie rozmowy",
     "showMessageListProfilePics": "Zdjęcia profilowe na liście wiadomości",
     "showMessageListProfilePicsHelp": "Pokazuj awatary nadawców na liście wiadomości.",
-    "accentBarUnread": "Pasek akcentu dla nieprzeczytanych wiadomości",
-    "accentBarUnreadHelp": "Pokazuje pasek po lewej stronie nieprzeczytanych wiadomości dla łatwiejszej identyfikacji.",
+    "accentBarUnread": "Akcent dla nieprzeczytanych wiadomości",
+    "accentBarUnreadHelp": "Pokazuje akcent po lewej stronie nieprzeczytanych wiadomości dla łatwiejszej identyfikacji.",
+    "accentStyle": "Styl akcentu",
+    "accentStyleDot": "Kropka",
+    "accentStyleGlowDot": "Świecąca kropka",
+    "accentStyleBar": "Pasek",
     "darkMailContent": "Ciemna zawartość wiadomości",
     "darkMailContentHelp": "Zastosuj ciemny filtr do zawartości wiadomości e-mail, gdy Aerion jest w trybie ciemnym.",
     "darkComposerBody": "Ciemne tło treści w edytorze",
@@ -857,9 +871,12 @@
     "deletePermanently": "Usunąć permanentnie?",
     "deleteDescription": "Spowoduje to trwałe usunięcie wybranych wiadomości. Tej czynności nie można cofnąć.",
     "emptyTrash": "Opróżnić kosz?",
+    "emptySpam": "Opróżnić spam?",
     "emptyTrashDescription": "Spowoduje to permanentne usunięcie wszystkich wiadomości w folderze Kosz. Tej czynności nie można cofnąć.",
+    "emptySpamDescription": "Spowoduje to permanentne usunięcie wszystkich wiadomości w folderze Spam. Tej czynności nie można cofnąć.",
     "confirmDeletePermanently": "Usuń permanentnie",
-    "confirmEmptyTrash": "Opróżnij kosz"
+    "confirmEmptyTrash": "Opróżnij kosz",
+    "confirmEmptySpam": "Opróżnij spam"
   },
   "date": {
     "justNow": "właśnie teraz",
@@ -909,7 +926,9 @@
     "flatpakOpenTitle": "Ograniczony dostęp do plików",
     "flatpakOpenDescription": "Otwieranie pliku z powiadomienia nie działa prawidłowo w Flatpak. Aby ta funkcja działała prawidłowo, przyznaj Aerionowi dostęp do katalogu domowego, uruchamiając następujące polecenie w terminalu:",
     "flatpakOpenSecurityWarning": "Przyznanie takich uprawnień ma implikacje bezpieczeństwa. Nie przyznawaj uprawnień bez pełnego zrozumienia ich działania.",
-    "flatpakOpenAlternative": "Alternatywnie, bez żadnej dodatkowej konfiguracji, możesz kliknąć \"Pokaż w folderze\", aby pokazać folder, w którym znajduje się plik, abyś mógł go stamtąd otworzyć."
+    "flatpakOpenAlternative": "Alternatywnie, bez żadnej dodatkowej konfiguracji, możesz kliknąć \"Pokaż w folderze\", aby pokazać folder, w którym znajduje się plik, abyś mógł go stamtąd otworzyć.",
+    "flatpakSaveAllDescription": "Zapisywanie wszystkich załączników naraz nie działa prawidłowo w Flatpak bez dostępu do katalogu domowego. Aby ta funkcja działała, przyznaj Aerionowi dostęp do katalogu domowego, uruchamiając następujące polecenie w terminalu, a następnie uruchom Aeriona ponownie:",
+    "flatpakSaveAllAlternative": "Alternatywnie, bez żadnej dodatkowej konfiguracji, możesz zapisywać załączniki pojedynczo — zapisanie pojedynczego załącznika działa bez dodatkowych uprawnień."
   },
   "aria": {
     "windowControls": "Przyciski okna",

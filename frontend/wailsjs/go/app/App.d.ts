@@ -189,6 +189,8 @@ export function DownloadAttachment(arg1:string,arg2:string):Promise<string>;
 
 export function DownloadEncryptedAttachment(arg1:string,arg2:string,arg3:string):Promise<string>;
 
+export function EmptySpam(arg1:string,arg2:string):Promise<void>;
+
 export function EmptyTrash(arg1:string,arg2:string):Promise<void>;
 
 export function FetchMessageBody(arg1:string):Promise<message.Message>;
@@ -202,6 +204,8 @@ export function ForceSyncContactSource(arg1:string):Promise<void>;
 export function ForceSyncFolder(arg1:string,arg2:string):Promise<void>;
 
 export function GetAccentBarUnread():Promise<boolean>;
+
+export function GetAccentUnreadStyle():Promise<string>;
 
 export function GetAccount(arg1:string):Promise<account.Account>;
 
@@ -258,6 +262,10 @@ export function GetCustomOAuthAccounts():Promise<Array<app.LinkedAccountInfo>>;
 export function GetDarkComposerBody():Promise<boolean>;
 
 export function GetDarkMailContent():Promise<boolean>;
+
+export function GetDefaultAddress(arg1:string,arg2:string):Promise<string>;
+
+export function GetDefaultAddressEnabled(arg1:string,arg2:string):Promise<boolean>;
 
 export function GetDraft(arg1:string):Promise<smtp.ComposeMessage>;
 
@@ -545,6 +553,8 @@ export function SendReadReceipt(arg1:string,arg2:string):Promise<void>;
 
 export function SetAccentBarUnread(arg1:boolean):Promise<void>;
 
+export function SetAccentUnreadStyle(arg1:string):Promise<void>;
+
 export function SetAccountEnabled(arg1:string,arg2:boolean):Promise<void>;
 
 export function SetAddressbookEnabled(arg1:string,arg2:boolean):Promise<void>;
@@ -564,6 +574,10 @@ export function SetContactSourceWritable(arg1:string,arg2:boolean):Promise<void>
 export function SetDarkComposerBody(arg1:boolean):Promise<void>;
 
 export function SetDarkMailContent(arg1:boolean):Promise<void>;
+
+export function SetDefaultAddress(arg1:string,arg2:string,arg3:string):Promise<void>;
+
+export function SetDefaultAddressEnabled(arg1:string,arg2:string,arg3:boolean):Promise<void>;
 
 export function SetDefaultIdentity(arg1:string,arg2:string):Promise<void>;
 

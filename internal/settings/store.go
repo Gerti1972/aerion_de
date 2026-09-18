@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hkdb/aerion/internal/database"
 	"github.com/hkdb/aerion/internal/logging"
@@ -34,6 +35,7 @@ const (
 	KeyDarkMailContent            = "dark_mail_content"
 	KeyDarkComposerBody           = "dark_composer_body"
 	KeyAccentBarUnread            = "accent_bar_unread"
+	KeyAccentUnreadStyle          = "accent_unread_style" // "dot" | "glowdot" | "bar"; applies when accent_bar_unread is on
 	KeyShowMessageListCircles     = "show_message_list_circles"
 	KeyShowMessageListProfilePics = "show_message_list_profile_pics" // render contact photos in the message-list avatar slot (default off)
 	KeyAlwaysShowMessageCheckbox  = "always_show_message_checkbox"   // reserve a fixed checkbox column instead of the hover/swipe slide-reveal (default off)
@@ -209,6 +211,76 @@ func (s *Store) SetExtensionEnabled(name string, enabled bool) error {
 	return s.Set("extension_"+name+"_enabled", v)
 }
 
+// Per-account default address kinds (#341): composer prefills for BCC and
+// Reply-To. Keys follow the dynamic default_<kind>_<accountID> /
+// default_<kind>_enabled_<accountID> format. The kind whitelist keeps the
+// Wails-exposed setters from writing arbitrary settings keys.
+const (
+	DefaultAddressCc      = "cc"
+	DefaultAddressBcc     = "bcc"
+	DefaultAddressReplyTo = "replyto"
+)
+
+func validateDefaultAddressKind(kind string) error {
+	switch kind {
+	case DefaultAddressCc, DefaultAddressBcc, DefaultAddressReplyTo:
+		return nil
+	}
+	return fmt.Errorf("invalid default address kind: %s", kind)
+}
+
+// GetDefaultAddressEnabled returns whether the per-account default address
+// of the given kind is enabled. Not-yet-set accounts default to disabled.
+func (s *Store) GetDefaultAddressEnabled(kind, accountID string) (bool, error) {
+	if err := validateDefaultAddressKind(kind); err != nil {
+		return false, err
+	}
+	value, err := s.Get("default_" + kind + "_enabled_" + accountID)
+	if err != nil {
+		return false, err
+	}
+	return value == "true", nil
+}
+
+// SetDefaultAddressEnabled writes the per-account toggle. The saved address
+// value is kept when disabling so re-enabling restores it.
+func (s *Store) SetDefaultAddressEnabled(kind, accountID string, enabled bool) error {
+	if err := validateDefaultAddressKind(kind); err != nil {
+		return err
+	}
+	v := "false"
+	if enabled {
+		v = "true"
+	}
+	return s.Set("default_"+kind+"_enabled_"+accountID, v)
+}
+
+// GetDefaultAddress returns the account's default address list (comma/
+// semicolon-separated, as entered) — or "" when the account's toggle is off,
+// so callers (the composer) need no separate enabled check.
+func (s *Store) GetDefaultAddress(kind, accountID string) (string, error) {
+	enabled, err := s.GetDefaultAddressEnabled(kind, accountID)
+	if err != nil {
+		return "", err
+	}
+	if !enabled {
+		return "", nil
+	}
+	value, err := s.Get("default_" + kind + "_" + accountID)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(value), nil
+}
+
+// SetDefaultAddress stores the account's default address list.
+func (s *Store) SetDefaultAddress(kind, accountID, value string) error {
+	if err := validateDefaultAddressKind(kind); err != nil {
+		return err
+	}
+	return s.Set("default_"+kind+"_"+accountID, strings.TrimSpace(value))
+}
+
 // GetReadReceiptResponsePolicy returns the current read receipt response policy
 func (s *Store) GetReadReceiptResponsePolicy() (string, error) {
 	value, err := s.Get(KeyReadReceiptResponsePolicy)
@@ -299,6 +371,36 @@ func (s *Store) SetAccentBarUnread(enabled bool) error {
 		v = "true"
 	}
 	return s.Set(KeyAccentBarUnread, v)
+}
+
+// GetAccentUnreadStyle returns the unread accent style ("dot", "glowdot" or
+// "bar"). When never set, users who already had the accent enabled keep the
+// legacy full bar; everyone else defaults to the dot.
+func (s *Store) GetAccentUnreadStyle() (string, error) {
+	value, err := s.Get(KeyAccentUnreadStyle)
+	if err != nil {
+		return "dot", err
+	}
+	if value != "" {
+		return value, nil
+	}
+	enabled, err := s.GetAccentBarUnread()
+	if err != nil {
+		return "dot", err
+	}
+	if enabled {
+		return "bar", nil
+	}
+	return "dot", nil
+}
+
+// SetAccentUnreadStyle sets the unread accent style
+func (s *Store) SetAccentUnreadStyle(style string) error {
+	switch style {
+	case "dot", "glowdot", "bar":
+		return s.Set(KeyAccentUnreadStyle, style)
+	}
+	return fmt.Errorf("invalid accent unread style: %s (must be 'dot', 'glowdot' or 'bar')", style)
 }
 
 // GetShowMessageListCircles returns whether colored sender circles

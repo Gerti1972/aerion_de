@@ -102,7 +102,17 @@ jobs:
           cp build/linux/install.sh dist-package/
           cp build/linux/uninstall.sh dist-package/
           cp build/linux/aerion.desktop dist-package/io.github.hkdb.Aerion.desktop
+          # 256 at tarball root keeps AUR aerion-bin working; sized copies +
+          # scalable SVG live under icons/ so install.sh can fill hicolor
+          # (#395). Keep sizes in sync with ICON_SIZES in Makefile/install.sh.
           cp build/linux/aerion.png dist-package/io.github.hkdb.Aerion.png
+          for sz in 32 48 64 128 256; do
+            mkdir -p dist-package/icons/${sz}x${sz}
+            cp build/linux/icons/${sz}x${sz}/io.github.hkdb.Aerion.png \
+              dist-package/icons/${sz}x${sz}/
+          done
+          mkdir -p dist-package/icons/scalable
+          cp build/linux/icons/scalable/io.github.hkdb.Aerion.svg dist-package/icons/scalable/
 
           if [ "${{ matrix.arch }}" = "amd64" ]; then
             tar czf aerion-linux-amd64.tar.gz -C dist-package .
@@ -219,7 +229,22 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
+          # Primary: normal install (phased-updates opt-in is CI hygiene —
+          # runners aren't a user population).
+          # Fallback: EXACT noble release-pocket versions. Ubuntu can leave
+          # -updates/-security unsatisfiable after pulling a bad update
+          # (2026-09-17: bubblewrap 0.9.0-1ubuntu0.2 published + deleted
+          # same day WITHOUT restoring ubuntu0.1, while updates-flatpak
+          # depends on >= ubuntu0.1 — broke apt-install of flatpak on all
+          # arches until mirrors carried the redone 0.9.0-1ubuntu0.3).
+          # The release pocket is frozen and never deleted, and its
+          # versions interlock by definition, so this set always installs
+          # (verified co-installable). NOT -t noble: Default-Release
+          # matches by codename too, so all noble-* pockets get pinned and
+          # the broken updates candidate still wins. Versions are
+          # noble-specific — refresh if the runner image moves off 24.04.
+          sudo apt-get install -y -o APT::Get::Always-Include-Phased-Updates=true flatpak flatpak-builder \
+            || sudo apt-get install -y flatpak=1.14.6-1 libflatpak0=1.14.6-1 bubblewrap=0.9.0-1build1 flatpak-builder=1.4.2-1build2
 
       - name: Add Flathub repository
         run: flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -253,7 +278,7 @@ jobs:
 
   commit-manifest:
     needs: build-flatpak
-    if: ${{ !contains(github.ref_name, '-build') && !contains(github.ref_name, '-test') }}
+    if: ${{ !contains(github.ref_name, '-build') && !contains(github.ref_name, '-test') && !contains(github.ref_name, '-rc') }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write

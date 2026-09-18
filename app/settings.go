@@ -69,6 +69,16 @@ func (a *App) GetAccentBarUnread() (bool, error) {
 	return a.settingsStore.GetAccentBarUnread()
 }
 
+// GetAccentUnreadStyle returns the unread accent style ("dot", "glowdot" or "bar")
+func (a *App) GetAccentUnreadStyle() (string, error) {
+	return a.settingsStore.GetAccentUnreadStyle()
+}
+
+// SetAccentUnreadStyle sets the unread accent style
+func (a *App) SetAccentUnreadStyle(style string) error {
+	return a.settingsStore.SetAccentUnreadStyle(style)
+}
+
 // SetAccentBarUnread enables or disables the accent bar for unread messages
 func (a *App) SetAccentBarUnread(enabled bool) error {
 	return a.settingsStore.SetAccentBarUnread(enabled)
@@ -329,6 +339,27 @@ func (a *App) GetComposerFormat() (string, error) {
 // SetComposerFormat sets the default composer format
 func (a *App) SetComposerFormat(format string) error {
 	return a.settingsStore.SetComposerFormat(format)
+}
+
+// GetDefaultAddress returns the account's default address list for the given
+// kind ("bcc" or "replyto"); "" when the toggle is disabled
+func (a *App) GetDefaultAddress(kind, accountID string) (string, error) {
+	return a.settingsStore.GetDefaultAddress(kind, accountID)
+}
+
+// SetDefaultAddress stores the account's default address list for the kind
+func (a *App) SetDefaultAddress(kind, accountID, value string) error {
+	return a.settingsStore.SetDefaultAddress(kind, accountID, value)
+}
+
+// GetDefaultAddressEnabled returns the account's default address toggle
+func (a *App) GetDefaultAddressEnabled(kind, accountID string) (bool, error) {
+	return a.settingsStore.GetDefaultAddressEnabled(kind, accountID)
+}
+
+// SetDefaultAddressEnabled writes the account's default address toggle
+func (a *App) SetDefaultAddressEnabled(kind, accountID string, enabled bool) error {
+	return a.settingsStore.SetDefaultAddressEnabled(kind, accountID, enabled)
 }
 
 // GetNativeTitleBar returns whether the native OS title bar is enabled

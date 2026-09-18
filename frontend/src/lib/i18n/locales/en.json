@@ -65,6 +65,7 @@
     "noMessages": "No messages in this folder",
     "selectFolder": "Select a folder to view messages",
     "emptyTrash": "Empty Trash",
+    "emptySpam": "Empty Spam",
     "ftsBuilding": "Building search index... ({percentage}%)",
     "syncFolder": "Sync Folder",
     "forceResync": "Force Re-sync",
@@ -177,6 +178,7 @@
     "to": "To",
     "cc": "Cc",
     "bcc": "Bcc",
+    "replyTo": "Reply-To",
     "subject": "Subject",
     "from": "From",
     "send": "Send",
@@ -273,6 +275,7 @@
     "deletedFromFolder": "Deleted from folder",
     "permanentlyDeleted": "Permanently deleted",
     "trashEmptied": "Trash emptied",
+    "spamEmptied": "Spam emptied",
     "markedAsRead": "Marked as read",
     "markedAsUnread": "Marked as unread",
     "markedAsSpam": "Marked as spam",
@@ -295,6 +298,7 @@
     "failedToArchive": "Failed to archive.",
     "failedToDelete": "Failed to delete.",
     "failedToEmptyTrash": "Failed to empty trash.",
+    "failedToEmptySpam": "Failed to empty spam.",
     "failedToMarkAsRead": "Failed to mark as read.",
     "failedToMarkAsUnread": "Failed to mark as unread.",
     "failedToMarkAsSpam": "Failed to mark as spam.",
@@ -365,7 +369,13 @@
     "composerFormat": "Default message format",
     "composerFormatRich": "Rich text",
     "composerFormatPlain": "Plain text",
-    "composerFormatDescription": "New messages will use this format by default. You can still switch per message."
+    "composerFormatDescription": "New messages will use this format by default. You can still switch per message.",
+    "defaultCc": "Default CC",
+    "defaultCcHelp": "Automatically added to the CC field when composing from an enabled account.",
+    "defaultBcc": "Default BCC",
+    "defaultBccHelp": "Automatically added to the BCC field when composing from an enabled account.",
+    "defaultReplyTo": "Default Reply-To",
+    "defaultReplyToHelp": "Sets the Reply-To address for messages composed from an enabled account."
   },
   "settingsGeneral": {
     "display": "Display",
@@ -389,8 +399,12 @@
     "showViewerCirclesHelp": "Show colored circles with sender initials in the conversation viewer",
     "showMessageListProfilePics": "Show contact photos in message list",
     "showMessageListProfilePicsHelp": "Show the contact's profile picture (falling back to a colored circle) in the message list. Requires \"Show colored circles in message list\".",
-    "accentBarUnread": "Accent bar for unread messages",
-    "accentBarUnreadHelp": "Shows a bar on the left side of unread messages for easier identification.",
+    "accentBarUnread": "Accent for unread messages",
+    "accentBarUnreadHelp": "Shows an accent on the left side of unread messages for easier identification.",
+    "accentStyle": "Accent style",
+    "accentStyleDot": "Dot",
+    "accentStyleGlowDot": "Glow Dot",
+    "accentStyleBar": "Bar",
     "darkMailContent": "Dark mail content",
     "darkMailContentHelp": "Apply a dark filter to email message content when Aerion is in dark mode.",
     "darkComposerBody": "Dark composer body",
@@ -857,9 +871,12 @@
     "deletePermanently": "Delete Permanently?",
     "deleteDescription": "This will permanently delete the selected message(s). This action cannot be undone.",
     "emptyTrash": "Empty Trash?",
+    "emptySpam": "Empty Spam?",
     "emptyTrashDescription": "This will permanently delete all messages in the Trash folder. This action cannot be undone.",
+    "emptySpamDescription": "This will permanently delete all messages in the Spam folder. This action cannot be undone.",
     "confirmDeletePermanently": "Delete Permanently",
-    "confirmEmptyTrash": "Empty Trash"
+    "confirmEmptyTrash": "Empty Trash",
+    "confirmEmptySpam": "Empty Spam"
   },
   "date": {
     "justNow": "just now",
@@ -909,7 +926,9 @@
     "flatpakOpenTitle": "Limited File Access",
     "flatpakOpenDescription": "Opening a file from this toast notification does not work properly in Flatpak. For this functionality to work properly, grant Aerion access to your home directory by running the following in your terminal:",
     "flatpakOpenSecurityWarning": "There are security implications to granting such permission. Do not grant such permission without fully understanding what it does.",
-    "flatpakOpenAlternative": "Alternatively, without any further configurations, you can click on \"Show in Folder\" instead to show the folder that the file is located in so that you can open it from there."
+    "flatpakOpenAlternative": "Alternatively, without any further configurations, you can click on \"Show in Folder\" instead to show the folder that the file is located in so that you can open it from there.",
+    "flatpakSaveAllDescription": "Saving all attachments at once does not work properly in Flatpak without home directory access. For this feature to work, grant Aerion access to your home directory by running the following in your terminal, then restart Aerion:",
+    "flatpakSaveAllAlternative": "Alternatively, without any further configurations, you can save attachments one at a time — saving a single attachment works without extra permissions."
   },
   "aria": {
     "windowControls": "Window controls",

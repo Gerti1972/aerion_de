@@ -309,6 +309,35 @@
   </provides>
 
   <releases>
+    <release version="0.3.4" date="2026-09-18">
+      <description>
+        <ul>
+          <li>Added default CC</li>
+          <li>Added default BCC - #341</li>
+          <li>Added default reply-to - #404</li>
+          <li>Added merge identical messages in thread - #222</li>
+          <li>Relabeled spellcheck dictionary English to English (US)</li>
+          <li>Added spellcheck dictionary: English (UK) - #417</li>
+          <li>Added spellcheck dictionary: Dutch</li>
+          <li>Added dot and glow dot optional accents for unread messages</li>
+          <li>Added window size persistence - #217</li>
+          <li>Added mini calendar for easier navigation - #368</li>
+          <li>Added Empty Spam button for spam folder - #239</li>
+          <li>New app icon with full hicolor size set and scalable SVG - #395 - #99</li>
+          <li>Fixed post delete ghost messages on message list</li>
+          <li>Fixed thread sender and preview in message list - #169</li>
+          <li>Fixed comma display name - #398</li>
+          <li>Fixed composer draft format detection - #420</li>
+          <li>Block save all attachments if flatpak - #384</li>
+          <li>Calendar color render adjustments to alleviate #406</li>
+          <li>Fixed Microsoft calendar attachments handling - #370</li>
+          <li>Fixed Contacts pagination - #278</li>
+          <li>Fixed M365 contacts - sync all folders - #278</li>
+          <li>Fixed M365 calendar - kill the silent-zero paths - #278</li>
+          <li>Fixed draft edit logic - #392</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.3" date="2026-08-06">
       <description>
         <ul>
@@ -317,7 +346,7 @@
           <li>Added manual config of IMAP/SMTP auth mech</li>
           <li>Added digest auth for contacts and calendars - #313</li>
           <li>Added Polish translation - PR #374</li>
-          <li>Fixed IMAP/SMTP auto auth mech - #365</li>
+          <li>Fixed IMAP/SMTP auto auth mech - #355</li>
           <li>Fixed glitch when rapid deleting messages</li>
           <li>Refactored to engine-level serialization</li>
           <li>Improved toast notification logic - #115</li>

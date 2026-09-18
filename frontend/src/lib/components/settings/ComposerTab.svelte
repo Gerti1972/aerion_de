@@ -3,9 +3,10 @@
   import * as Select from '$lib/components/ui/select'
   import { Label } from '$lib/components/ui/label'
   import Switch from '$lib/components/ui/switch/Switch.svelte'
+  import AccountAddressDefaults from './AccountAddressDefaults.svelte'
   import { _ } from '$lib/i18n'
   import { supportedLocales } from '$lib/i18n'
-  import { SPELLCHECK_DICTS } from '$lib/spellcheck/locales'
+  import { SPELLCHECK_DICTS, DICT_NAMES } from '$lib/spellcheck/locales'
   import { getSpellcheckCustomWords } from '$lib/stores/settings.svelte'
   import { removeCustomWord } from '$lib/spellcheck/settings'
   import SpellWordList from '$lib/spellcheck/SpellWordList.svelte'
@@ -43,7 +44,7 @@
   // Dictionaries Aerion ships, with their native display names.
   const dictLanguages = SPELLCHECK_DICTS.map((code) => ({
     code,
-    name: supportedLocales.find((l) => l.code === code)?.name ?? code,
+    name: DICT_NAMES[code] ?? supportedLocales.find((l) => l.code === code)?.name ?? code,
   }))
 
   // Added-words list — read straight from the store (persists immediately on
@@ -114,6 +115,7 @@
     spellcheckLanguages = next
     onSpellcheckLanguagesChange?.(next)
   }
+
 </script>
 
 <div class="space-y-6 p-1">
@@ -247,4 +249,41 @@
       onRemove={removeCustomWord}
     />
   </div>
+
+  <!-- Divider -->
+  <div class="border-t border-border"></div>
+
+  <!-- Per-account default Reply-To -->
+  <AccountAddressDefaults
+    kind="replyto"
+    title={$_('settings.defaultReplyTo')}
+    icon="mdi:reply"
+    help={$_('settings.defaultReplyToHelp')}
+    placeholder="replies@example.com"
+    single
+  />
+
+  <!-- Divider -->
+  <div class="border-t border-border"></div>
+
+  <!-- Per-account default CC -->
+  <AccountAddressDefaults
+    kind="cc"
+    title={$_('settings.defaultCc')}
+    icon="mdi:email-multiple-outline"
+    help={$_('settings.defaultCcHelp')}
+    placeholder="boss@example.com"
+  />
+
+  <!-- Divider -->
+  <div class="border-t border-border"></div>
+
+  <!-- Per-account default BCC (#341) -->
+  <AccountAddressDefaults
+    kind="bcc"
+    title={$_('settings.defaultBcc')}
+    icon="mdi:email-plus-outline"
+    help={$_('settings.defaultBccHelp')}
+    placeholder="crm@example.com"
+  />
 </div>

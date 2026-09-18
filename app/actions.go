@@ -340,6 +340,12 @@ func (a *App) MoveToFolder(messageIDs []string, destFolderID string) error {
 		byFolder[m.FolderID] = append(byFolder[m.FolderID], m)
 	}
 
+	// Stamp the own-expunge window BEFORE the local mutation — the IMAP
+	// goroutine stamps it too, but that runs later; without this, a reconcile
+	// firing between the local move and the goroutine start sees no window
+	// and can resurrect the just-moved messages
+	a.noteOwnExpunge(messages[0].AccountID)
+
 	// Update local DB first
 	if err := a.messageStore.MoveMessages(messageIDs, destFolderID); err != nil {
 		return fmt.Errorf("failed to move messages locally: %w", err)
@@ -915,6 +921,10 @@ func (a *App) gmailRemoveLabel(messages []*message.Message) error {
 		ids[i] = m.ID
 	}
 
+	// Stamp the own-expunge window BEFORE the local mutation (the IMAP
+	// goroutine's stamp runs later — see MoveToFolder)
+	a.noteOwnExpunge(messages[0].AccountID)
+
 	// Delete from local DB
 	if err := a.messageStore.DeleteBatch(ids); err != nil {
 		return fmt.Errorf("failed to delete messages locally: %w", err)
@@ -1080,6 +1090,12 @@ func (a *App) EmptyTrash(accountID, folderID string) error {
 	return a.DeletePermanently(ids)
 }
 
+// EmptySpam permanently deletes all messages in a spam folder. Same
+// folder-generic mechanics as EmptyTrash.
+func (a *App) EmptySpam(accountID, folderID string) error {
+	return a.EmptyTrash(accountID, folderID)
+}
+
 // DeletePermanently permanently deletes messages
 func (a *App) DeletePermanently(messageIDs []string) error {
 	log := logging.WithComponent("app")
@@ -1101,6 +1117,10 @@ func (a *App) DeletePermanently(messageIDs []string) error {
 	for _, m := range messages {
 		byFolder[m.FolderID] = append(byFolder[m.FolderID], m)
 	}
+
+	// Stamp the own-expunge window BEFORE the local mutation (the IMAP
+	// goroutine's stamp runs later — see MoveToFolder)
+	a.noteOwnExpunge(messages[0].AccountID)
 
 	// Delete from local DB first
 	if err := a.messageStore.DeleteBatch(messageIDs); err != nil {

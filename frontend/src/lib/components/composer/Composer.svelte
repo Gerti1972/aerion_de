@@ -55,6 +55,7 @@
   import { addToast } from '$lib/stores/toast'
   import { getComposerFormat, getDarkComposerBody } from '$lib/stores/settings.svelte'
   import { getIsDarkActive } from '$lib/stores/theme.svelte'
+  import { isDialogGuardActive } from '$lib/stores/dialogGuard'
   import { _ } from '$lib/i18n'
 
   // Keep the composer message body white in dark mode unless the user opted into
@@ -119,6 +120,9 @@
   let subject = $state('')
   let showCc = $state(false)
   let showBcc = $state(false)
+  let showReplyTo = $state(false)
+  // Reply-To is a single *Address in ComposeMessage — the first chip wins
+  let replyToRecipients = $state<smtp.Address[]>([])
   let sending = $state(false)
   let poppingOut = $state(false)  // Pop-out in progress
   let editorElement = $state<HTMLElement | null>(null)
@@ -558,6 +562,7 @@
       to: toRecipients,
       cc: ccRecipients,
       bcc: bccRecipients,
+      reply_to: replyToRecipients[0],
       subject: subject,
       html_body: htmlContent,
       text_body: textContent,
@@ -576,7 +581,7 @@
   function getContentHash(): string {
     const bodyContent = isPlainTextMode ? plainTextContent : (editor?.getHTML() || '')
     const attachmentNames = attachments.map(a => a.filename).join(',')
-    return `${toRecipients.length}|${ccRecipients.length}|${bccRecipients.length}|${subject}|${bodyContent}|${attachmentNames}|${isPlainTextMode}`
+    return `${toRecipients.length}|${ccRecipients.length}|${bccRecipients.length}|${replyToRecipients[0]?.address || ''}|${subject}|${bodyContent}|${attachmentNames}|${isPlainTextMode}`
   }
 
   // Schedule a draft save (debounced)
@@ -679,7 +684,7 @@
   // Watch for content changes and trigger auto-save
   $effect(() => {
     // Dependencies to watch
-    const _ = [toRecipients, ccRecipients, bccRecipients, subject, signMessage, encryptMessage, pgpSignMessage, pgpEncryptMessage]
+    const _ = [toRecipients, ccRecipients, bccRecipients, replyToRecipients, subject, signMessage, encryptMessage, pgpSignMessage, pgpEncryptMessage]
     // untrack prevents $effect from creating a reactive dependency on saveStatus
     // (which scheduleDraftSave reads), avoiding a circular re-run that causes flash
     untrack(() => scheduleDraftSave())
@@ -788,6 +793,65 @@
       initializeFromMessage()
       // Store initial content hash so we don't immediately save
       lastContent = getContentHash()
+    }
+
+    // Prefill the account's default CC, BCC, and Reply-To (#341) —
+    // new/reply/forward only; a loaded draft's saved recipients are the truth
+    if (!draftId) {
+      let prefilled = false
+      try {
+        const defaultCc = await api.getDefaultAddress('cc', activeAccountId)
+        const existing = new Set(
+          [...toRecipients, ...ccRecipients, ...bccRecipients]
+            .map(r => (r.address || (r as any).email || '').toLowerCase())
+        )
+        const added = defaultCc
+          .split(/[,;]/)
+          .map(s => s.trim())
+          .filter(addr => addr && !existing.has(addr.toLowerCase()))
+          .map(addr => new smtp.Address({ name: '', address: addr }))
+        if (added.length > 0) {
+          ccRecipients = [...ccRecipients, ...added]
+          showCc = true
+          prefilled = true
+        }
+      } catch (err) {
+        console.error('Failed to load default CC:', err)
+      }
+      try {
+        const defaultBcc = await api.getDefaultAddress('bcc', activeAccountId)
+        const existing = new Set(
+          [...toRecipients, ...ccRecipients, ...bccRecipients]
+            .map(r => (r.address || (r as any).email || '').toLowerCase())
+        )
+        const added = defaultBcc
+          .split(/[,;]/)
+          .map(s => s.trim())
+          .filter(addr => addr && !existing.has(addr.toLowerCase()))
+          .map(addr => new smtp.Address({ name: '', address: addr }))
+        if (added.length > 0) {
+          bccRecipients = [...bccRecipients, ...added]
+          showBcc = true
+          prefilled = true
+        }
+      } catch (err) {
+        console.error('Failed to load default BCC:', err)
+      }
+      try {
+        const defaultReplyTo = await api.getDefaultAddress('replyto', activeAccountId)
+        const first = defaultReplyTo.split(/[,;]/).map(s => s.trim()).filter(Boolean)[0]
+        if (first && replyToRecipients.length === 0) {
+          replyToRecipients = [new smtp.Address({ name: '', address: first })]
+          showReplyTo = true
+          prefilled = true
+        }
+      } catch (err) {
+        console.error('Failed to load default Reply-To:', err)
+      }
+      if (prefilled) {
+        // The prefills aren't user edits — don't let them trigger an autosave
+        lastContent = getContentHash()
+      }
     }
 
     // Append signature for the selected identity (after editor is ready)
@@ -1010,9 +1074,18 @@
     ccRecipients = (initialMessage.cc || []).map(toSmtpAddress)
     bccRecipients = (initialMessage.bcc || []).map(toSmtpAddress)
 
-    // Show Cc field if there are Cc recipients
+    // Show Cc/Bcc fields if they have recipients
     if (ccRecipients.length > 0) {
       showCc = true
+    }
+    if (bccRecipients.length > 0) {
+      showBcc = true
+    }
+
+    // Restore Reply-To (single address; from a reopened draft)
+    if (initialMessage.reply_to?.address) {
+      replyToRecipients = [toSmtpAddress(initialMessage.reply_to)]
+      showReplyTo = true
     }
 
     // Set subject
@@ -1054,6 +1127,20 @@
       }
       // Ensure new inline images get unique CIDs
       inlineImageCounter = Math.max(inlineImageCounter, inlineImages.length)
+    }
+
+    // Open drafts in the format they were written in (#420): a plain-text
+    // draft saves html_body = '', so seeding the rich editor from it opens a
+    // blank body — and autosave would then wipe the real text_body. The
+    // reverse (rich draft under a plain setting) opens rich so formatting
+    // and inline images survive. Reply/forward keeps following the setting
+    // (#285 behavior). Both editor surfaces stay mounted, so flipping the
+    // flag is safe in either direction.
+    if (draftId && !htmlBody && initialMessage.text_body) {
+      isPlainTextMode = true
+    }
+    if (draftId && htmlBody) {
+      isPlainTextMode = false
     }
 
     // Set editor content (with restored data URLs for inline images)
@@ -1448,6 +1535,23 @@
       }
     }
     if (e.key === 'Escape') {
+      // Anything modal stacked on top owns Escape — don't also close the
+      // composer underneath it (which would pop the save-draft prompt, or
+      // re-open the one the user just dismissed).
+      //
+      // bits-ui's escape layer listens on `document` and calls
+      // preventDefault() without stopping propagation, so the event still
+      // reaches this window-level handler afterwards. defaultPrevented is the
+      // reliable signal: it persists across listeners in the same dispatch.
+      // A DOM check for [role=dialog] does NOT work here — a microtask
+      // checkpoint runs between listener callbacks, so Svelte has already
+      // flushed the dialog out of the DOM by the time this runs.
+      //
+      // This also covers layers that deliberately ignore Escape: bits-ui
+      // preventDefaults those too, and the composer shouldn't close under a
+      // modal that is refusing to.
+      if (e.defaultPrevented) return
+      if (isDialogGuardActive()) return
       handleClose()
     }
   }
@@ -1877,7 +1981,25 @@
           </Select.Content>
         </Select.Root>
       </div>
+      {#if !showReplyTo}
+        <div class="flex items-center gap-1 text-sm text-muted-foreground">
+          <button onclick={() => showReplyTo = true} class="hover:text-foreground">{$_('composer.replyTo')}</button>
+        </div>
+      {/if}
     </div>
+
+    <!-- Reply-To (single address; revealed via the From-row link) -->
+    {#if showReplyTo}
+      <div class="flex items-start gap-2 px-4 py-2 border-b border-border">
+        <span class="text-sm text-muted-foreground w-16 pt-1">{$_('composer.replyTo')}:</span>
+        <div class="flex-1">
+          <RecipientInput
+            bind:recipients={replyToRecipients}
+            placeholder={$_('composer.addRecipients')}
+          />
+        </div>
+      </div>
+    {/if}
 
     <!-- To -->
     <div class="flex items-start gap-2 px-4 py-2 border-b border-border">

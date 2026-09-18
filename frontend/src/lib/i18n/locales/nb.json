@@ -65,6 +65,7 @@
     "noMessages": "Ingen meldinger i denne mappen",
     "selectFolder": "Velg en mappe for å se meldinger",
     "emptyTrash": "Tøm papirkurven",
+    "emptySpam": "Tøm søppelpost",
     "ftsBuilding": "Bygger søkeindeks… ({percentage}%)",
     "syncFolder": "Synkroniser mappe",
     "forceResync": "Tving synkronisering",
@@ -177,6 +178,7 @@
     "to": "Til",
     "cc": "Kopi",
     "bcc": "Blindkopi",
+    "replyTo": "Svaradresse",
     "subject": "Emne",
     "from": "Fra",
     "send": "Send",
@@ -273,6 +275,7 @@
     "deletedFromFolder": "Slettet fra mappe",
     "permanentlyDeleted": "Slettet for alltid",
     "trashEmptied": "Papirkurv tømt",
+    "spamEmptied": "Søppelpost tømt",
     "markedAsRead": "Markert som lest",
     "markedAsUnread": "Markert som ulest",
     "markedAsSpam": "Markert som søppelpost",
@@ -295,6 +298,7 @@
     "failedToArchive": "Klarte ikke å arkivére.",
     "failedToDelete": "Klarte ikke å slette.",
     "failedToEmptyTrash": "Klarte ikke å tømme papirkurven.",
+    "failedToEmptySpam": "Klarte ikke å tømme søppelposten.",
     "failedToMarkAsRead": "Klarte ikke å markere som lest.",
     "failedToMarkAsUnread": "Klarte ikke å markere som ulest.",
     "failedToMarkAsSpam": "Klarte ikke å markere som søppelpost.",
@@ -365,7 +369,13 @@
     "composerFormat": "Standard meldingsformat",
     "composerFormatRich": "Rik tekst",
     "composerFormatPlain": "Standardtekst",
-    "composerFormatDescription": "Nye meldinger vil bruke det angitte formatet som standard. Du kan fortsatt veksle mellom dem når du skriver nye meldinger."
+    "composerFormatDescription": "Nye meldinger vil bruke det angitte formatet som standard. Du kan fortsatt veksle mellom dem når du skriver nye meldinger.",
+    "defaultCc": "Standard kopi",
+    "defaultCcHelp": "Legges automatisk til i kopifeltet når du skriver meldinger fra en aktivert konto.",
+    "defaultBcc": "Standard blindkopi",
+    "defaultBccHelp": "Legges automatisk til i blindkopifeltet når du skriver meldinger fra en aktivert konto.",
+    "defaultReplyTo": "Standard svaradresse",
+    "defaultReplyToHelp": "Angir svaradressen for meldinger som skrives fra en aktivert konto."
   },
   "settingsGeneral": {
     "display": "Visning",
@@ -389,8 +399,12 @@
     "showViewerCirclesHelp": "Vis fargerike sirkler med avsenderen sine initialer i samtalevisningen",
     "showMessageListProfilePics": "Vis kontaktbilder i meldingslisten",
     "showMessageListProfilePicsHelp": "Vis kontaktens profilbilde i meldingslisten, eller en farget sirkel hvis bildet mangler. Krever at «Vis fargerike sirkler i meldingslisten» er aktivert.",
-    "accentBarUnread": "Merkelinje for uleste meldinger",
-    "accentBarUnreadHelp": "Viser en linje på venstesiden av uleste meldinger for enklere identifisering.",
+    "accentBarUnread": "Merking av uleste meldinger",
+    "accentBarUnreadHelp": "Viser en merking på venstresiden av uleste meldinger for enklere identifisering.",
+    "accentStyle": "Merkestil",
+    "accentStyleDot": "Prikk",
+    "accentStyleGlowDot": "Glødende prikk",
+    "accentStyleBar": "Linje",
     "darkMailContent": "Mørkt e-postinnhold",
     "darkMailContentHelp": "Bruk et mørkt filter på innhold i e-postmeldinger når Aerion er i mørk modus.",
     "darkComposerBody": "Mørkt skriveinnhold",
@@ -857,9 +871,12 @@
     "deletePermanently": "Slett permanent?",
     "deleteDescription": "Dette vil slette de valgte meldingene for alltid. Dette kan ikke angres.",
     "emptyTrash": "Tøm papirkurven?",
+    "emptySpam": "Tøm søppelposten?",
     "emptyTrashDescription": "Dette vil slette alle meldingene i papirkurven for alltid. Dette kan ikke angres.",
+    "emptySpamDescription": "Dette vil slette alle meldingene i søppelpostmappen for alltid. Dette kan ikke angres.",
     "confirmDeletePermanently": "Slett permanent",
-    "confirmEmptyTrash": "Tøm papirkurven"
+    "confirmEmptyTrash": "Tøm papirkurven",
+    "confirmEmptySpam": "Tøm søppelpost"
   },
   "date": {
     "justNow": "Akkurat nå",
@@ -909,7 +926,9 @@
     "flatpakOpenTitle": "Begrenset tilgang til filer",
     "flatpakOpenDescription": "Åpning av filer fra dette varselet fungerer ikke skikkelig fra Flatpak. For at dette skal fungere skikkelig, gi Aerion tilgang til hjem-mappen din ved å kjøre følgene i terminalen din:",
     "flatpakOpenSecurityWarning": "Det kan være konsekvenser for din sikkerhet ved å gi en slik tillatelse. Ikke gi slike tillatelser uten å forstå hva den gjør.",
-    "flatpakOpenAlternative": "Alternativt så kan du klikke på «vis i mappe» i stedet for å åpne mappen filen er lagret i og åpne den fra der."
+    "flatpakOpenAlternative": "Alternativt så kan du klikke på «vis i mappe» i stedet for å åpne mappen filen er lagret i og åpne den fra der.",
+    "flatpakSaveAllDescription": "Lagring av alle vedlegg samtidig fungerer ikke skikkelig fra Flatpak uten tilgang til hjem-mappen. For at dette skal fungere, gi Aerion tilgang til hjem-mappen din ved å kjøre følgende i terminalen din, og start deretter Aerion på nytt:",
+    "flatpakSaveAllAlternative": "Alternativt så kan du lagre vedleggene ett og ett — lagring av enkeltvedlegg fungerer uten ekstra tillatelser."
   },
   "aria": {
     "windowControls": "Vindukontroller",

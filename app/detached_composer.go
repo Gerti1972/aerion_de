@@ -542,6 +542,13 @@ func (c *ComposerApp) GetDarkComposerBody() (bool, error) {
 	return c.settingsStore.GetDarkComposerBody()
 }
 
+// GetDefaultAddress returns the account's default address list for the given
+// kind ("bcc"/"replyto"; "" when disabled), so a detached composer prefills
+// the same way as the in-window one (#341).
+func (c *ComposerApp) GetDefaultAddress(kind, accountID string) (string, error) {
+	return c.settingsStore.GetDefaultAddress(kind, accountID)
+}
+
 // GetSystemTheme returns the current system theme preference detected via
 // the XDG Settings Portal on Linux. Returns "light", "dark", or "" if not available.
 func (c *ComposerApp) GetSystemTheme() string {

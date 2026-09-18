@@ -342,6 +342,10 @@ export function DownloadEncryptedAttachment(arg1, arg2, arg3) {
   return window['go']['app']['App']['DownloadEncryptedAttachment'](arg1, arg2, arg3);
 }
 
+export function EmptySpam(arg1, arg2) {
+  return window['go']['app']['App']['EmptySpam'](arg1, arg2);
+}
+
 export function EmptyTrash(arg1, arg2) {
   return window['go']['app']['App']['EmptyTrash'](arg1, arg2);
 }
@@ -368,6 +372,10 @@ export function ForceSyncFolder(arg1, arg2) {
 
 export function GetAccentBarUnread() {
   return window['go']['app']['App']['GetAccentBarUnread']();
+}
+
+export function GetAccentUnreadStyle() {
+  return window['go']['app']['App']['GetAccentUnreadStyle']();
 }
 
 export function GetAccount(arg1) {
@@ -480,6 +488,14 @@ export function GetDarkComposerBody() {
 
 export function GetDarkMailContent() {
   return window['go']['app']['App']['GetDarkMailContent']();
+}
+
+export function GetDefaultAddress(arg1, arg2) {
+  return window['go']['app']['App']['GetDefaultAddress'](arg1, arg2);
+}
+
+export function GetDefaultAddressEnabled(arg1, arg2) {
+  return window['go']['app']['App']['GetDefaultAddressEnabled'](arg1, arg2);
 }
 
 export function GetDraft(arg1) {
@@ -1054,6 +1070,10 @@ export function SetAccentBarUnread(arg1) {
   return window['go']['app']['App']['SetAccentBarUnread'](arg1);
 }
 
+export function SetAccentUnreadStyle(arg1) {
+  return window['go']['app']['App']['SetAccentUnreadStyle'](arg1);
+}
+
 export function SetAccountEnabled(arg1, arg2) {
   return window['go']['app']['App']['SetAccountEnabled'](arg1, arg2);
 }
@@ -1092,6 +1112,14 @@ export function SetDarkComposerBody(arg1) {
 
 export function SetDarkMailContent(arg1) {
   return window['go']['app']['App']['SetDarkMailContent'](arg1);
+}
+
+export function SetDefaultAddress(arg1, arg2, arg3) {
+  return window['go']['app']['App']['SetDefaultAddress'](arg1, arg2, arg3);
+}
+
+export function SetDefaultAddressEnabled(arg1, arg2, arg3) {
+  return window['go']['app']['App']['SetDefaultAddressEnabled'](arg1, arg2, arg3);
 }
 
 export function SetDefaultIdentity(arg1, arg2) {
